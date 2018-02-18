@@ -1,0 +1,34 @@
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:st="jelly:stapler">
+
+    <link rel="stylesheet" type="text/css" href="${rootURL}/plugin/github-coverage-reporter/css/coverage-summary.css" />
+
+    <tr>
+        <td colspan="2">
+
+            <!-- START: Main Content -->
+
+            <h2>Test Coverage</h2>
+
+            <table class="coverage-table">
+                <thead>
+                    <th>Description</th>
+                    <th>Result</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Line rate</td>
+                        <td>${it.lineRateDescription}</td>
+                    </tr>
+                    <tr>
+                        <td>Branch rate</td>
+                        <td>${it.branchRateDescription}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- END: Main Content -->
+
+        </td>
+    </tr>
+
+</j:jelly>
