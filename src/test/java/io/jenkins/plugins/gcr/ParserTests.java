@@ -12,9 +12,6 @@ import java.io.File;
 
 public class ParserTests {
 
-    @Rule
-    public JenkinsRule jenkins = new JenkinsRule();
-
     @Test
     public void testParseCobertura() throws Exception {
         CoberturaParser parser = new CoberturaParser();

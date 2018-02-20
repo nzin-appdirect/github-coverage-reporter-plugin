@@ -3,7 +3,24 @@
     <f:entry title="${%Filepath}" field="filepath">
         <f:textbox />
     </f:entry>
-    <f:entry title="${%CoverageXmlType}" field="coverageXmlType" description="${%CoverageXmlTypeDescription}">
+    <f:entry title="${%CoverageXmlType}" field="coverageXmlType">
         <f:select />
     </f:entry>
+    <f:radioBlock name="comparisonOption" value="optionSonarProject" title="${%EnableSonar}"
+                  checked="${instance.comparisonOption.isTypeSonarProject()}">
+        <f:nested>
+            <f:entry title="${%SonarProject}" field="sonarProject">
+                <f:select />
+                <f:helplink  />
+            </f:entry>
+        </f:nested>
+    </f:radioBlock>
+    <f:radioBlock name="comparisonOption" value="optionFixedCoverage" title="${%EnableFixedCoverage}"
+                  checked="${instance.comparisonOption.isTypeFixedCoverage()}">
+        <f:nested>
+            <f:entry title="${%FixedCoverage}" field="fixedCoverage">
+                <f:textbox  />
+            </f:entry>
+        </f:nested>
+    </f:radioBlock>
 </j:jelly>
