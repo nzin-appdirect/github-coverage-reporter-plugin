@@ -14,15 +14,18 @@
                 <thead>
                     <th>Description</th>
                     <th>Result</th>
+                    <th>Difference</th>
                 </thead>
                 <tbody>
                     <tr>
                         <td>Line rate</td>
                         <td>${it.lineRateDescription}</td>
+                        <td>${it.getLineRateDifference()}</td>
                     </tr>
                     <tr>
                         <td>Branch rate</td>
                         <td>${it.branchRateDescription}</td>
+                        <td>-</td>
                     </tr>
                 </tbody>
             </table>

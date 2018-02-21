@@ -3,21 +3,19 @@ package io.jenkins.plugins.gcr;
 import hudson.Launcher;
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.tasks.*;
-import hudson.model.AbstractProject;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import io.jenkins.plugins.gcr.models.ComparisonOption;
-import io.jenkins.plugins.gcr.models.Coverage;
-import io.jenkins.plugins.gcr.models.CoverageType;
+import io.jenkins.plugins.gcr.models.*;
 import io.jenkins.plugins.gcr.parsers.CoberturaParser;
 import io.jenkins.plugins.gcr.parsers.CoverageParser;
+import io.jenkins.plugins.gcr.parsers.ParserException;
 import io.jenkins.plugins.gcr.parsers.ParserFactory;
 import io.jenkins.plugins.gcr.sonar.SonarClient;
+import io.jenkins.plugins.gcr.sonar.SonarException;
 import io.jenkins.plugins.gcr.sonar.models.SonarProject;
+import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -28,6 +26,7 @@ import java.util.List;
 import jenkins.tasks.SimpleBuildStep;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 
 public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep {
 
@@ -45,6 +44,11 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         this.filepath = filepath;
         this.coverageXmlType = coverageXmlType;
         this.comparisonOption = comparisonOption;
+    }
+
+    @Override
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl)super.getDescriptor();
     }
 
     // Getters / Setters
@@ -81,6 +85,9 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
     public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
         listener.getLogger().println("Attempting to parse file of type, " + coverageXmlType + "");
 
+
+        PluginEnvironment environment = new PluginEnvironment(run.getEnvironment(listener));
+
         FilePath pathToFile = new FilePath(workspace, this.filepath);
 
         if (!pathToFile.exists()) {
@@ -90,32 +97,47 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         } else {
             listener.getLogger().println(String.format("Found file '%s'", this.filepath));
             String xmlString = FileUtils.readFileToString(new File(pathToFile.toURI()));
-            listener.getLogger().println("XML Content: \n");
-            listener.getLogger().println(xmlString);
-            listener.getLogger().println("\n");
         }
 
         File file = new File(pathToFile.toURI());
-        CoverageParser parser = ParserFactory.instance.parserForType(coverageXmlType);
+        listener.getLogger().println(String.format("Attempting parse of file: %s", file.getAbsolutePath()));
 
         try {
-            listener.getLogger().println(String.format("Attempting parse of file: %s", file.getAbsolutePath()));
-            Coverage cov = parser.parse(file.getAbsolutePath());
-
-            listener.getLogger().println("XML Object: ");
-            listener.getLogger().println(cov);
-
-            run.addAction(new CoverageReportAction(cov));
+            CoverageReportAction coverageReport = generateCoverageReport(file);
+            run.addAction(coverageReport);
             run.save();
-
             run.setResult(Result.SUCCESS);
-
         } catch (Exception ex) {
-            listener.error("Failed to parse xml, received Exception: ");
+            listener.error(ex.getMessage());
             ex.printStackTrace();
             run.setResult(Result.FAILURE);
         }
 
+    }
+
+    private CoverageReportAction generateCoverageReport(File file) throws ParserException, SonarException {
+        CoverageParser parser = ParserFactory.instance.parserForType(coverageXmlType);
+
+        Coverage coverage = parser.parse(file.getAbsolutePath());
+        Coverage expectedCoverage = getExpectedCoverage(comparisonOption);
+
+        return new CoverageReportAction(coverage, expectedCoverage);
+    }
+
+
+    private Coverage getExpectedCoverage(ComparisonOption comparisonOption) throws SonarException {
+        Coverage expectedCoverage;
+        if (comparisonOption.isTypeSonarProject()) {
+            SonarClient client = new SonarClient();
+            expectedCoverage = client.getCoverageForProject(comparisonOption.getSonarProject());
+        } else if (comparisonOption.isTypeFixedCoverage()) {
+            double fixedValue = comparisonOption.fixedCoverageAsDouble();
+            // TODO: Have two separate inputs for this
+            expectedCoverage = new DefaultCoverage(fixedValue, fixedValue);
+        } else {
+            expectedCoverage = null;
+        }
+        return expectedCoverage;
     }
 
     @Extension
@@ -137,7 +159,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
             SonarClient client = new SonarClient();
             try {
                 List<SonarProject> projects = client.listProjects();
-                projects.forEach(project -> sonarProjectModel.add(project.getName()));
+                projects.forEach(project -> sonarProjectModel.add(project.getName(), project.getKey()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -148,7 +170,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         public FormValidation doCheckSonarProject(@QueryParameter String value) {
             // TODO: Use localized Messages strings
             if (sonarProjectModel == null || sonarProjectModel.isEmpty()) {
-                return FormValidation.error("SonarQube server unreachable");
+                return FormValidation.error("SonarQube server unreachable.");
             }
             if (value == null || value.equals("")) {
                 return FormValidation.error("Invalid project selection. check that your SonarQube server is not unreachable.");

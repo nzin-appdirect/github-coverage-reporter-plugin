@@ -7,12 +7,17 @@ public class CoverageReportAction implements Action {
 
     private Coverage coverage;
 
+    private Coverage expectedCoverage;
+
     private String lineRateDescription;
 
     private String branchRateDescription;
 
-    public CoverageReportAction(Coverage coverage) {
+    private String expectedLineRateDescription;
+
+    public CoverageReportAction(Coverage coverage, Coverage expectedCoverage) {
         this.coverage = coverage;
+        this.expectedCoverage = expectedCoverage;
 
         this.lineRateDescription = String.format("%.2f%%", coverage.getLineRate() * 100.0);
         this.branchRateDescription = String.format("%.2f%%", coverage.getBranchRate() * 100.0);
@@ -30,6 +35,18 @@ public class CoverageReportAction implements Action {
 
     public String getBranchRateDescription() {
         return branchRateDescription;
+    }
+
+    public String getExpectedLineRateDescription() { return expectedLineRateDescription; }
+
+    public String getLineRateDifference() {
+        if (coverage.getLineRate() >= expectedCoverage.getLineRate()) {
+            double difference = coverage.getLineRate() - expectedCoverage.getLineRate();
+            return String.format("+%.2f", difference);
+        } else {
+            double difference = expectedCoverage.getLineRate() - coverage.getLineRate();
+            return String.format("-%.2f", difference);
+        }
     }
 
     // Required fields

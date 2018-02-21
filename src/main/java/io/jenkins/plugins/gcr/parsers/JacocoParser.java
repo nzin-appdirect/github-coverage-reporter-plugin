@@ -4,6 +4,7 @@ import io.jenkins.plugins.gcr.models.Coverage;
 import io.jenkins.plugins.gcr.models.JacocoCoverage;
 import io.jenkins.plugins.gcr.utils.XmlUtils;
 
+import javax.swing.text.html.parser.Parser;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.sax.SAXSource;
@@ -11,14 +12,19 @@ import javax.xml.transform.sax.SAXSource;
 public class JacocoParser implements CoverageParser {
 
     @Override
-    public Coverage parse(String filepath) throws Exception {
-        JAXBContext jaxbContext = JAXBContext.newInstance(JacocoCoverage.class);
-        SAXSource source = XmlUtils.getSAXSource(filepath);
+    public Coverage parse(String filepath) throws ParserException {
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(JacocoCoverage.class);
+            SAXSource source = XmlUtils.getSAXSource(filepath);
 
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        Coverage coverage = (Coverage) jaxbUnmarshaller.unmarshal(source);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Coverage coverage = (Coverage) jaxbUnmarshaller.unmarshal(source);
 
-        return coverage;
+            return coverage;
+        } catch(Exception ex) {
+            String message = String.format("Failed to parse Jacoco coverage for filepath '%s'", filepath);
+            throw new ParserException(message, ex);
+        }
     }
 
 }

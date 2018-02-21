@@ -16,17 +16,19 @@ public class CoberturaParser implements CoverageParser {
 
 
     @Override
-    public Coverage parse(String filepath) throws Exception {
+    public Coverage parse(String filepath) throws ParserException {
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(CoberturaCoverage.class);
+            SAXSource source = XmlUtils.getSAXSource(filepath);
 
-        JAXBContext jaxbContext = JAXBContext.newInstance(CoberturaCoverage.class);
-        SAXSource source = XmlUtils.getSAXSource(filepath);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Coverage coverage = (Coverage) jaxbUnmarshaller.unmarshal(source);
 
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        Coverage coverage = (Coverage) jaxbUnmarshaller.unmarshal(source);
-        System.out.println(coverage);
-
-        return coverage;
-
+            return coverage;
+        } catch (Exception ex) {
+            String message = String.format("Failed to parse Jacoco coverage for filepath '%s'", filepath);
+            throw new ParserException(message, ex);
+        }
     }
 
 }

@@ -1,22 +1,19 @@
 package io.jenkins.plugins.gcr.sonar;
 
+import io.jenkins.plugins.gcr.models.Coverage;
+import io.jenkins.plugins.gcr.models.DefaultCoverage;
 import io.jenkins.plugins.gcr.sonar.models.SonarProject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.params.DefaultedHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,12 +48,10 @@ public class SonarClient {
     public List<SonarProject> listProjects() throws IOException {
 
         String url = fullUrl("api/components/search?qualifiers=TRK");
-
         HttpUriRequest request = new HttpGet(url);
 
         ResponseHandler<List<SonarProject>> responseHandler = (HttpResponse httpResponse) -> {
-            HttpEntity entity = httpResponse.getEntity();
-            String responseText = EntityUtils.toString(entity);
+            String responseText = EntityUtils.toString(httpResponse.getEntity());
 
             JSONObject jsonObject = JSONObject.fromObject(responseText);
             JSONArray projectArray = jsonObject.getJSONArray("components");
@@ -65,17 +60,49 @@ public class SonarClient {
 
             projectArray.forEach(item -> {
                 JSONObject obj = (JSONObject)item;
-                projects.add(new SonarProject(obj.getString("name")));
+                SonarProject project = new SonarProject(
+                        obj.getString("name"),
+                        obj.getString("key")
+                );
+                projects.add(project);
             });
 
 
             return projects;
         };
 
-        List<SonarProject> projects= this.httpClient.execute(request, responseHandler);
+        List<SonarProject> projects = this.httpClient.execute(request, responseHandler);
 
         return projects;
 
+    }
+
+    public Coverage getCoverageForProject(String projectName) throws SonarException {
+        // TODO: Add support for multi-component projects?
+        // Currently we infer component from project name
+        String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=coverage", projectName));
+        HttpUriRequest request = new HttpGet(url);
+
+        ResponseHandler<Double> responseHandler = (HttpResponse httpResponse) -> {
+            String responseText = EntityUtils.toString(httpResponse.getEntity());
+
+            JSONObject jsonObject = JSONObject.fromObject(responseText);
+            JSONObject jsonMeasure = jsonObject.getJSONObject("component").getJSONArray("measures").getJSONObject(0);
+
+            Double result = Double.parseDouble(jsonMeasure.getString("value"));
+
+            return result;
+        };
+
+        try {
+            double result = this.httpClient.execute(request, responseHandler);
+            // TODO: Branch rate doesn't come back for some projects ...
+            return new DefaultCoverage(result, 0.0);
+        } catch (IOException ex) {
+            // TODO: Localise
+            String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectName);
+            throw new SonarException(message, ex);
+        }
     }
 
     // Utilities

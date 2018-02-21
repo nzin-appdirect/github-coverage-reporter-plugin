@@ -4,8 +4,11 @@ public class SonarProject {
 
     private String name;
 
-    public SonarProject(String name) {
+    private String key;
+
+    public SonarProject(String name, String key) {
         this.name = name;
+        this.key = key;
     }
 
     // Getters / Setters
@@ -13,4 +16,7 @@ public class SonarProject {
     public String getName() {
         return name;
     }
+
+    public String getKey() { return key; }
+
 }
