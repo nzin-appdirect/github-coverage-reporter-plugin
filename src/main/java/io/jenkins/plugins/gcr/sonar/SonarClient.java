@@ -77,10 +77,9 @@ public class SonarClient {
 
     }
 
-    public Coverage getCoverageForProject(String projectName) throws SonarException {
+    public Coverage getCoverageForProject(String projectKey) throws SonarException {
         // TODO: Add support for multi-component projects?
-        // Currently we infer component from project name
-        String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=coverage", projectName));
+        String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=coverage", projectKey));
         HttpUriRequest request = new HttpGet(url);
 
         ResponseHandler<Double> responseHandler = (HttpResponse httpResponse) -> {
@@ -100,7 +99,7 @@ public class SonarClient {
             return new DefaultCoverage(result, 0.0);
         } catch (IOException ex) {
             // TODO: Localise
-            String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectName);
+            String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectKey);
             throw new SonarException(message, ex);
         }
     }

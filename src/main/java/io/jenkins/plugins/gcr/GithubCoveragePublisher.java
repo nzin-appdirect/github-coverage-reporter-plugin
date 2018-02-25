@@ -7,6 +7,7 @@ import hudson.model.*;
 import hudson.tasks.*;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import io.jenkins.plugins.gcr.github.GithubClient;
 import io.jenkins.plugins.gcr.models.*;
 import io.jenkins.plugins.gcr.parsers.CoberturaParser;
 import io.jenkins.plugins.gcr.parsers.CoverageParser;
@@ -87,6 +88,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
 
         PluginEnvironment environment = new PluginEnvironment(run.getEnvironment(listener));
+        GithubClient githubClient = new GithubClient(environment);
 
         FilePath pathToFile = new FilePath(workspace, this.filepath);
 
