@@ -33,8 +33,8 @@ public class ParserTests {
         File coverageFile = TestUtils.loadResource("jacoco-coverage.xml");
         Coverage coverage = parser.parse(coverageFile.getAbsolutePath());
 
-        Assert.assertEquals(22.1, coverage.getLineRate(), 0.05);
-        Assert.assertEquals(28.8, coverage.getBranchRate(), 0.05);
+        Assert.assertEquals(0.22, coverage.getLineRate(), 0.05);
+        Assert.assertEquals(0.28, coverage.getBranchRate(), 0.05);
     }
 
 }

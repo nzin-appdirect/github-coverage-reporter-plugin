@@ -8,6 +8,7 @@ import hudson.tasks.*;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import io.jenkins.plugins.gcr.github.GithubClient;
+import io.jenkins.plugins.gcr.github.GithubPayload;
 import io.jenkins.plugins.gcr.models.*;
 import io.jenkins.plugins.gcr.parsers.CoberturaParser;
 import io.jenkins.plugins.gcr.parsers.CoverageParser;
@@ -86,7 +87,6 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
     public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
         listener.getLogger().println("Attempting to parse file of type, " + coverageXmlType + "");
 
-
         PluginEnvironment environment = new PluginEnvironment(run.getEnvironment(listener));
         GithubClient githubClient = new GithubClient(environment);
 
@@ -108,6 +108,10 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
             CoverageReportAction coverageReport = generateCoverageReport(file);
             run.addAction(coverageReport);
             run.save();
+
+            GithubPayload payload = generateGithubCovergePayload(coverageReport, environment.getBuildUrl());
+            githubClient.sendCommitStatus(payload);
+
             run.setResult(Result.SUCCESS);
         } catch (Exception ex) {
             listener.error(ex.getMessage());
@@ -140,6 +144,15 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
             expectedCoverage = null;
         }
         return expectedCoverage;
+    }
+
+    private GithubPayload generateGithubCovergePayload(CoverageReportAction coverageReport, String targetUrl) {
+        String status = coverageReport.isAcceptableCoverage() ? "success" : "failure";
+        String description = coverageReport.getStatusDescription();
+        String context = "coverage";
+        GithubPayload payload = new GithubPayload(status, targetUrl, description, context);
+
+        return payload;
     }
 
     @Extension

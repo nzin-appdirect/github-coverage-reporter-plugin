@@ -40,13 +40,24 @@ public class CoverageReportAction implements Action {
     public String getExpectedLineRateDescription() { return expectedLineRateDescription; }
 
     public String getLineRateDifference() {
-        if (coverage.getLineRate() >= expectedCoverage.getLineRate()) {
+        if (isAcceptableCoverage()) {
             double difference = coverage.getLineRate() - expectedCoverage.getLineRate();
             return String.format("+%.2f", difference);
         } else {
             double difference = expectedCoverage.getLineRate() - coverage.getLineRate();
             return String.format("-%.2f", difference);
         }
+    }
+
+    public boolean isAcceptableCoverage() {
+        return coverage.getLineRate() >= expectedCoverage.getLineRate();
+    }
+
+    public String getStatusDescription() {
+        // TODO: localise
+        String template = "Coverage of %.2f%% is %s expected %.2f%%.";
+        String adjective = isAcceptableCoverage() ? "greater than or equal to" : "lower than";
+        return String.format(template, coverage.getLineRate(), adjective, expectedCoverage.getLineRate());
     }
 
     // Required fields
