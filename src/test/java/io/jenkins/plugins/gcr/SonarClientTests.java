@@ -15,7 +15,7 @@ import java.util.List;
 public class SonarClientTests {
 
     @Test
-    public void testSonarClientListProjects() throws IOException {
+    public void testSonarClientListProjects() throws Exception {
 
         HttpClientMock clientMock = new HttpClientMock();
         File mockFile = TestUtils.loadResource("sonar-projects.json");
