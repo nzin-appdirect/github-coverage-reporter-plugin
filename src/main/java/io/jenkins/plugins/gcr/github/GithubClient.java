@@ -31,11 +31,14 @@ public class GithubClient {
 
     private HttpClient httpClient;
 
-    public GithubClient(PluginEnvironment environment) {
+    public GithubClient(PluginEnvironment environment, String accessToken) {
+        this(environment, accessToken, HttpClientBuilder.create().build());
+    }
 
-        this.httpClient = HttpClientBuilder.create().build();
+    public GithubClient(PluginEnvironment environment, String accessToken, HttpClient httpClient) {
+        this.httpClient = httpClient;
         this.environment = environment;
-        this.accessToken = PluginConfiguration.DESCRIPTOR.getGithubAccessToken();
+        this.accessToken = accessToken;
     }
 
 

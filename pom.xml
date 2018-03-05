@@ -114,7 +114,7 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <phase>package</phase>
-                        <id>install-prepare-agent</id>
+                        <id>package-prepare-agent</id>
                     </execution>
                     <execution>
                         <goals>

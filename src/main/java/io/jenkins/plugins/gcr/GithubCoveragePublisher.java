@@ -88,7 +88,8 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         listener.getLogger().println("Attempting to parse file of type, " + coverageXmlType + "");
 
         PluginEnvironment environment = new PluginEnvironment(run.getEnvironment(listener));
-        GithubClient githubClient = new GithubClient(environment);
+        String githubAccessToken = PluginConfiguration.DESCRIPTOR.getGithubAccessToken();
+        GithubClient githubClient = new GithubClient(environment, githubAccessToken);
 
         FilePath pathToFile = new FilePath(workspace, this.filepath);
 
