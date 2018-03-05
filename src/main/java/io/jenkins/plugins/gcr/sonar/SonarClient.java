@@ -96,7 +96,7 @@ public class SonarClient {
         try {
             double result = this.httpClient.execute(request, responseHandler);
             // TODO: Branch rate doesn't come back for some projects ...
-            return new DefaultCoverage(result, 0.0);
+            return new DefaultCoverage(result / 100.0f, 0.0);
         } catch (IOException ex) {
             // TODO: Localise
             String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectKey);

@@ -55,9 +55,11 @@ public class CoverageReportAction implements Action {
 
     public String getStatusDescription() {
         // TODO: localise
-        String template = "Coverage of %.2f%% is %s expected %.2f%%.";
-        String adjective = isAcceptableCoverage() ? "greater than or equal to" : "lower than";
-        return String.format(template, coverage.getLineRate(), adjective, expectedCoverage.getLineRate());
+        final String template = "Coverage of %.2f%% is %s expected %.2f%%.";
+        final String adjective = isAcceptableCoverage() ? "greater than or equal to" : "lower than";
+        final double rate = coverage.getLineRate() * 100.0;
+        final double expectedRate = expectedCoverage.getLineRate() * 100.0f;
+        return String.format(template, rate, adjective, expectedRate);
     }
 
     // Required fields

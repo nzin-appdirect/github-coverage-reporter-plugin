@@ -93,7 +93,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         FilePath pathToFile = new FilePath(workspace, this.filepath);
 
         if (!pathToFile.exists()) {
-            listener.error("CoberturaCoverage file does not exist");
+            listener.error("The coverage file at the provided path does not exist");
             run.setResult(Result.FAILURE);
             return;
         } else {
