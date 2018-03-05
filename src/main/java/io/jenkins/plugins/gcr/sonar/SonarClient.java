@@ -19,6 +19,8 @@ import java.util.List;
 
 public class SonarClient {
 
+    private static final String METRIC_KEY = "line_coverage";
+
     private HttpClient httpClient;
 
     private String sonarHost;
@@ -79,7 +81,7 @@ public class SonarClient {
 
     public Coverage getCoverageForProject(String projectKey) throws SonarException {
         // TODO: Add support for multi-component projects?
-        String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=coverage", projectKey));
+        String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=%s", projectKey, METRIC_KEY));
         HttpUriRequest request = new HttpGet(url);
 
         ResponseHandler<Double> responseHandler = (HttpResponse httpResponse) -> {
