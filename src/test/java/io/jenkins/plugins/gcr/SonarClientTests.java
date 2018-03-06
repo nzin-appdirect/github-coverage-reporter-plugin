@@ -4,6 +4,7 @@ import com.github.paweladamski.httpclientmock.HttpClientMock;
 import com.google.common.io.Files;
 import io.jenkins.plugins.gcr.models.Coverage;
 import io.jenkins.plugins.gcr.sonar.SonarClient;
+import io.jenkins.plugins.gcr.sonar.SonarException;
 import io.jenkins.plugins.gcr.sonar.models.SonarProject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,6 +48,24 @@ public class SonarClientTests {
 
 
         Assert.assertEquals(0.234, coverage.getLineRate(), 0.05);
+    }
+
+    @Test
+    public void testGetCoverageForProjectIOException() {
+        HttpClientMock clientMock = new HttpClientMock();
+        clientMock.onGet("http://localhost:9000/api/measures/component")
+                .withParameter("component", "io.jenkins.plugins:github-coverage-reporter")
+                .withParameter("metricKeys", "line_coverage")
+                .doThrowException(new IOException());
+
+        SonarClient client = new SonarClient(clientMock);
+
+        try {
+            Coverage coverage = client.getCoverageForProject("io.jenkins.plugins:github-coverage-reporter");
+            Assert.fail();
+        } catch (SonarException ex) {
+            Assert.assertNotNull(ex);
+        }
     }
 
 }
