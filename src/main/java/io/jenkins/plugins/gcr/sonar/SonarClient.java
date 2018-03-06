@@ -19,6 +19,8 @@ import java.util.List;
 
 public class SonarClient {
 
+    private static final String METRIC_KEY = "line_coverage";
+
     private HttpClient httpClient;
 
     private String sonarHost;
@@ -77,10 +79,9 @@ public class SonarClient {
 
     }
 
-    public Coverage getCoverageForProject(String projectName) throws SonarException {
+    public Coverage getCoverageForProject(String projectKey) throws SonarException {
         // TODO: Add support for multi-component projects?
-        // Currently we infer component from project name
-        String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=coverage", projectName));
+        String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=%s", projectKey, METRIC_KEY));
         HttpUriRequest request = new HttpGet(url);
 
         ResponseHandler<Double> responseHandler = (HttpResponse httpResponse) -> {
@@ -97,10 +98,10 @@ public class SonarClient {
         try {
             double result = this.httpClient.execute(request, responseHandler);
             // TODO: Branch rate doesn't come back for some projects ...
-            return new DefaultCoverage(result, 0.0);
+            return new DefaultCoverage(result / 100.0f, 0.0);
         } catch (IOException ex) {
             // TODO: Localise
-            String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectName);
+            String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectKey);
             throw new SonarException(message, ex);
         }
     }

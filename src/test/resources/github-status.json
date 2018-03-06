@@ -1,0 +1,29 @@
+{
+  "url": "https://api.github.com/repos/jnewc/myrepo/statuses/8c11abea6dfc884b5fcad38026e58214c995b93c",
+  "id": 5670472859,
+  "state": "success",
+  "description": "description",
+  "target_url": "https://my.target/url",
+  "context": "coverage",
+  "created_at": "2018-03-04T19:15:35Z",
+  "updated_at": "2018-03-04T19:15:35Z",
+  "creator": {
+    "login": "jnewc",
+    "id": 755790,
+    "avatar_url": "https://avatars3.githubusercontent.com/u/755790?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jnewc",
+    "html_url": "https://github.com/jnewc",
+    "followers_url": "https://api.github.com/users/jnewc/followers",
+    "following_url": "https://api.github.com/users/jnewc/following{/other_user}",
+    "gists_url": "https://api.github.com/users/jnewc/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/jnewc/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/jnewc/subscriptions",
+    "organizations_url": "https://api.github.com/users/jnewc/orgs",
+    "repos_url": "https://api.github.com/users/jnewc/repos",
+    "events_url": "https://api.github.com/users/jnewc/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/jnewc/received_events",
+    "type": "User",
+    "site_admin": false
+  }
+}

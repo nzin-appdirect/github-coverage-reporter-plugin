@@ -1,0 +1,21 @@
+{
+  "component": {
+    "id": "AWG02gGC9jNVqF3qPTJs",
+    "key": "io.jenkins.plugins:github-coverage-reporter",
+    "name": "TODO Plugin",
+    "description": "TODO",
+    "qualifier": "TRK",
+    "measures": [
+      {
+        "metric": "line_coverage",
+        "value": "23.4",
+        "periods": [
+          {
+            "index": 1,
+            "value": "-20.300000000000004"
+          }
+        ]
+      }
+    ]
+  }
+}
