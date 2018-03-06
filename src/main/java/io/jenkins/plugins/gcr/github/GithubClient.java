@@ -29,16 +29,19 @@ public class GithubClient {
 
     private String accessToken;
 
+    private String githubUrl;
+
     private HttpClient httpClient;
 
-    public GithubClient(PluginEnvironment environment, String accessToken) {
-        this(environment, accessToken, HttpClientBuilder.create().build());
+    public GithubClient(PluginEnvironment environment, String githubUrl, String accessToken) {
+        this(environment, githubUrl, accessToken, HttpClientBuilder.create().build());
     }
 
-    public GithubClient(PluginEnvironment environment, String accessToken, HttpClient httpClient) {
+    public GithubClient(PluginEnvironment environment, String githubUrl, String accessToken, HttpClient httpClient) {
         this.httpClient = httpClient;
         this.environment = environment;
         this.accessToken = accessToken;
+        this.githubUrl = githubUrl;
     }
 
 
@@ -46,27 +49,9 @@ public class GithubClient {
 
         String path = String.format("/repos/%s/statuses/%s", environment.getPullRequestRepository(), environment.getGitHash());
 
-        URIBuilder builder = new URIBuilder();
-        builder.setScheme("https");
 
-        try {
-            URL gitUrl = new URL(environment.getGitUrl());
-            // TODO: custom github API url
-            builder.setHost("api.github.com");
-        } catch (MalformedURLException ex) {
-            throw new GithubClientException("URL was malformed", ex);
-        }
-
-        builder.setPath(path);
-        builder.setParameter("access_token", accessToken);
-
-        HttpPost postRequest = new HttpPost();
-
-        try {
-            postRequest.setURI(builder.build());
-        } catch (URISyntaxException ex) {
-            throw new GithubClientException("URI builder syntax was malformed", ex);
-        }
+        URI uri = buildUri(path);
+        HttpPost postRequest = new HttpPost(uri);
 
         try {
             StringEntity entity = new StringEntity(githubPayload.toJSONString());
@@ -95,6 +80,47 @@ public class GithubClient {
         } catch (IOException ex) {
             throw new GithubClientException("IOException during request");
         }
+    }
+
+    private URI buildUri(String path) throws GithubClientException {
+        URIBuilder builder = new URIBuilder();
+        builder.setScheme("https");
+
+        try {
+            URL gitUrl = new URL(environment.getGitUrl());
+            // TODO: custom github API url
+            if (this.isCustomUrlValid()) {
+                builder.setHost(this.cleanedHost());
+            } else {
+                builder.setHost("api.github.com");
+            }
+        } catch (MalformedURLException ex) {
+            throw new GithubClientException("URL was malformed", ex);
+        }
+
+        if (this.isCustomUrlValid()) {
+            path = "/api/v3".concat(path);
+        }
+
+        builder.setPath(path);
+        builder.setParameter("access_token", accessToken);
+
+        try {
+            return builder.build();
+        } catch (URISyntaxException ex) {
+            throw new GithubClientException("URI builder syntax was malformed", ex);
+        }
+    }
+
+    private boolean isCustomUrlValid() {
+        return this.githubUrl != null && this.githubUrl.startsWith("https://");
+    }
+
+    private String cleanedHost() {
+        if (this.githubUrl.startsWith("https://")) {
+            return this.githubUrl.replaceFirst("https://", "");
+        }
+        return this.githubUrl;
     }
 
 }

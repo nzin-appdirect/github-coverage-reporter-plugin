@@ -35,7 +35,7 @@ public class GithubClientTests {
                 .doReturnStatus(201)
                 .doReturn(Files.toString(mockFile, Charset.forName("utf-8")));
 
-        GithubClient client = new GithubClient(mockEnvironment, ACCESS_TOKEN, mockClient);
+        GithubClient client = new GithubClient(mockEnvironment, null, ACCESS_TOKEN, mockClient);
 
         try {
             client.sendCommitStatus(payload);

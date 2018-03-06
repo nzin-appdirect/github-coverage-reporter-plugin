@@ -27,6 +27,8 @@ public class PluginConfiguration extends AbstractDescribableImpl<PluginConfigura
 
         private String githubAccessToken;
 
+        private String githubEnterpriseUrl;
+
         public PluginConfigurationDescriptor() {
             load();
         }
@@ -34,6 +36,7 @@ public class PluginConfiguration extends AbstractDescribableImpl<PluginConfigura
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
             githubAccessToken = json.getString("githubAccessToken");
+            githubEnterpriseUrl = json.getString("githubEnterpriseUrl");
             return super.configure(req, json);
         }
 
@@ -46,6 +49,10 @@ public class PluginConfiguration extends AbstractDescribableImpl<PluginConfigura
 
         public String getGithubAccessToken() {
             return githubAccessToken;
+        }
+
+        public String getGithubEnterpriseUrl() {
+            return githubEnterpriseUrl;
         }
 
     }

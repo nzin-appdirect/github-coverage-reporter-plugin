@@ -5,6 +5,9 @@
         <f:entry title="Github Access Token" field="githubAccessToken">
             <f:textbox />
         </f:entry>
+        <f:entry title="Github Enterprise URL" field="githubEnterpriseUrl">
+            <f:textbox />
+        </f:entry>
     </f:section>
 
 </j:jelly>
