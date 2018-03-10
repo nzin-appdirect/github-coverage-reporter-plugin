@@ -42,10 +42,10 @@ public class CoverageReportAction implements Action {
     public String getLineRateDifference() {
         if (isAcceptableCoverage()) {
             double difference = coverage.getLineRate() - expectedCoverage.getLineRate();
-            return String.format("+%.2f", difference);
+            return String.format("+%.2f%%", difference * 100.0);
         } else {
             double difference = expectedCoverage.getLineRate() - coverage.getLineRate();
-            return String.format("-%.2f", difference);
+            return String.format("-%.2f%%", difference * 100.0);
         }
     }
 

@@ -89,7 +89,8 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
         PluginEnvironment environment = new PluginEnvironment(run.getEnvironment(listener));
         String githubAccessToken = PluginConfiguration.DESCRIPTOR.getGithubAccessToken();
-        GithubClient githubClient = new GithubClient(environment, githubAccessToken);
+        String githubUrl = PluginConfiguration.DESCRIPTOR.getGithubEnterpriseUrl();
+        GithubClient githubClient = new GithubClient(environment, githubUrl, githubAccessToken);
 
         FilePath pathToFile = new FilePath(workspace, this.filepath);
 
