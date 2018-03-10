@@ -88,7 +88,6 @@ public class GithubClient {
 
         try {
             URL gitUrl = new URL(environment.getGitUrl());
-            // TODO: custom github API url
             if (this.isCustomUrlValid()) {
                 builder.setHost(this.cleanedHost());
             } else {
