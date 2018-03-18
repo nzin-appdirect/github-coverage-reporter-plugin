@@ -6,9 +6,12 @@ public class DefaultCoverage implements Coverage {
 
     private double branchRate;
 
-    public DefaultCoverage(double lineRate, double branchRate) {
+    private double overallRate;
+
+    public DefaultCoverage(double overallRate, double lineRate, double branchRate) {
         this.lineRate = lineRate;
         this.branchRate = branchRate;
+        this.overallRate = overallRate;
     }
 
     @Override
@@ -20,4 +23,7 @@ public class DefaultCoverage implements Coverage {
     public double getBranchRate() {
         return branchRate;
     }
+
+    @Override
+    public double getOverallRate() { return overallRate; }
 }

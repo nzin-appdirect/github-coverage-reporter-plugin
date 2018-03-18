@@ -21,10 +21,8 @@ public class ParserTests {
         Coverage coverage = parser.parse(coverageFile.getAbsolutePath());
 
         Assert.assertEquals(0.75, coverage.getLineRate(), 0.05);
-
         Assert.assertEquals(0.75, coverage.getBranchRate(), 0.05);
-
-//        Assert.assertEquals(2.0, coverage.complexity, 0.05);
+        Assert.assertEquals(0.75, coverage.getOverallRate(), 0.05);
     }
 
     @Test
@@ -49,6 +47,7 @@ public class ParserTests {
 
         Assert.assertEquals(0.22, coverage.getLineRate(), 0.05);
         Assert.assertEquals(0.28, coverage.getBranchRate(), 0.05);
+        Assert.assertEquals(0.25, coverage.getOverallRate(), 0.05);
     }
 
     @Test

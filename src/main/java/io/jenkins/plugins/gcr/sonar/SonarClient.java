@@ -3,6 +3,7 @@ package io.jenkins.plugins.gcr.sonar;
 import io.jenkins.plugins.gcr.models.Coverage;
 import io.jenkins.plugins.gcr.models.DefaultCoverage;
 import io.jenkins.plugins.gcr.sonar.models.SonarProject;
+import io.jenkins.plugins.gcr.sonar.parsers.SonarCoverageParser;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.http.HttpResponse;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class SonarClient {
 
-    private static final String METRIC_KEY = "line_coverage";
+    private static final String METRIC_KEY = "line_coverage,branch_coverage,coverage";
 
     private HttpClient httpClient;
 
@@ -47,6 +48,12 @@ public class SonarClient {
 
     // Requests
 
+    /**
+     * Fetches a list of sonar projects
+     *
+     * @return a list of sonar project metadata models
+     * @throws IOException
+     */
     public List<SonarProject> listProjects() throws IOException {
 
         String url = fullUrl("api/components/search?qualifiers=TRK");
@@ -79,26 +86,30 @@ public class SonarClient {
 
     }
 
+    /**
+     * Fetches the coverage statistics for a given sonar project
+     *
+     * @param projectKey The key identifier for the sonar project
+     * @return A coverage model
+     * @throws SonarException
+     */
     public Coverage getCoverageForProject(String projectKey) throws SonarException {
         // TODO: Add support for multi-component projects?
         String url = fullUrl(String.format("api/measures/component?component=%s&metricKeys=%s", projectKey, METRIC_KEY));
         HttpUriRequest request = new HttpGet(url);
 
-        ResponseHandler<Double> responseHandler = (HttpResponse httpResponse) -> {
+        ResponseHandler<Coverage> responseHandler = (HttpResponse httpResponse) -> {
             String responseText = EntityUtils.toString(httpResponse.getEntity());
+            final JSONObject jsonResponse = JSONObject.fromObject(responseText);
 
-            JSONObject jsonObject = JSONObject.fromObject(responseText);
-            JSONObject jsonMeasure = jsonObject.getJSONObject("component").getJSONArray("measures").getJSONObject(0);
-
-            Double result = Double.parseDouble(jsonMeasure.getString("value"));
-
-            return result;
+            SonarCoverageParser parser = new SonarCoverageParser();
+            return parser.parse(jsonResponse);
         };
 
         try {
-            double result = this.httpClient.execute(request, responseHandler);
+            Coverage result = this.httpClient.execute(request, responseHandler);
             // TODO: Branch rate doesn't come back for some projects ...
-            return new DefaultCoverage(result / 100.0f, 0.0);
+            return result;
         } catch (IOException ex) {
             // TODO: Localise
             String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectKey);
@@ -108,7 +119,7 @@ public class SonarClient {
 
     // Utilities
 
-    public String fullUrl(String path) {
+    private String fullUrl(String path) {
         return String.format("http://%s:%s/%s", this.sonarHost, this.sonarPort, path);
     }
 

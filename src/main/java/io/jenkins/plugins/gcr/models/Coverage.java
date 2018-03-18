@@ -2,8 +2,10 @@ package io.jenkins.plugins.gcr.models;
 
 public interface Coverage {
 
-    public double getLineRate();
+    double getLineRate();
 
-    public double getBranchRate();
+    double getBranchRate();
+
+    double getOverallRate();
 
 }

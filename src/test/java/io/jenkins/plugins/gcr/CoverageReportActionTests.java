@@ -1,77 +1,88 @@
 package io.jenkins.plugins.gcr;
 
 import io.jenkins.plugins.gcr.models.Coverage;
+import io.jenkins.plugins.gcr.models.CoverageRateType;
 import io.jenkins.plugins.gcr.models.DefaultCoverage;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class CoverageReportActionTests {
 
-    @Test
-    public void testBranchRateDescription() {
-        Coverage coverage1 = new DefaultCoverage(0.0, 0.25);
-        Coverage coverage2 = new DefaultCoverage(0.0, 0.0);
-        CoverageReportAction action = new CoverageReportAction(coverage1, coverage2);
+    Coverage higherCoverage = new DefaultCoverage(0.4,0.5, 0.3);
+    Coverage lowerCoverage  = new DefaultCoverage(0.2,0.3, 0.1);
 
-        String description = action.getBranchRateDescription();
-
-        Assert.assertEquals("25.00%", description);
-    }
+    // Line
 
     @Test
-    public void testLineRateDescription() {
-        Coverage coverage1 = new DefaultCoverage(0.5, 0.0);
-        Coverage coverage2 = new DefaultCoverage(0.0, 0.0);
-        CoverageReportAction action = new CoverageReportAction(coverage1, coverage2);
+    public void testStatusForLineRateDecreased() {
+        CoverageReportAction action = new CoverageReportAction(lowerCoverage, higherCoverage, CoverageRateType.LINE);
 
-        String description = action.getLineRateDescription();
+        String status = action.getStatusName();
+        String description = action.getStatusDescription();
 
-        Assert.assertEquals("50.00%", description);
-    }
-
-    @Test
-    public void testLineRateDifferenceDecreased() {
-        Coverage coverage1 = new DefaultCoverage(0.25, 0.0);
-        Coverage coverage2 = new DefaultCoverage(0.5, 0.0);
-        CoverageReportAction action = new CoverageReportAction(coverage1, coverage2);
-
-        String difference = action.getLineRateDifference();
-
-        Assert.assertEquals("-25.00%", difference);
-    }
-
-    @Test
-    public void testLineRateDifferenceIncreased() {
-        Coverage coverage1 = new DefaultCoverage(0.5, 0.0);
-        Coverage coverage2 = new DefaultCoverage(0.25, 0.0);
-        CoverageReportAction action = new CoverageReportAction(coverage1, coverage2);
-
-        String difference = action.getLineRateDifference();
-
-        Assert.assertEquals("+25.00%", difference);
-    }
-
-    @Test
-    public void testStatusDescriptionDescreased() {
-        Coverage coverage1 = new DefaultCoverage(0.25, 0.0);
-        Coverage coverage2 = new DefaultCoverage(0.5, 0.0);
-        CoverageReportAction action = new CoverageReportAction(coverage1, coverage2);
-
-        String status = action.getStatusDescription();
-
-        Assert.assertEquals("Coverage of 25.00% is lower than expected 50.00%.", status);
+        Assert.assertEquals("failure", status);
+        Assert.assertEquals("Coverage of 30.00% is lower than expected 50.00%.", description);
     }
 
 
     @Test
-    public void testStatusDescriptionInscreased() {
-        Coverage coverage1 = new DefaultCoverage(0.5, 0.0);
-        Coverage coverage2 = new DefaultCoverage(0.25, 0.0);
-        CoverageReportAction action = new CoverageReportAction(coverage1, coverage2);
+    public void testStatusForLineRateIncreased() {
+        CoverageReportAction action = new CoverageReportAction(higherCoverage, lowerCoverage, CoverageRateType.LINE);
 
-        String status = action.getStatusDescription();
+        String status = action.getStatusName();
+        String description = action.getStatusDescription();
 
-        Assert.assertEquals("Coverage of 50.00% is greater than or equal to expected 25.00%.", status);
+        Assert.assertEquals("success", status);
+        Assert.assertEquals("Coverage of 50.00% is greater than or equal to expected 30.00%.", description);
+    }
+
+    // Branch
+
+    @Test
+    public void testStatusBranchRateDecreased() {
+        CoverageReportAction action = new CoverageReportAction(lowerCoverage, higherCoverage, CoverageRateType.BRANCH);
+
+        String status = action.getStatusName();
+        String description = action.getStatusDescription();
+
+        Assert.assertEquals("failure", status);
+        Assert.assertEquals("Coverage of 10.00% is lower than expected 30.00%.", description);
+    }
+
+
+    @Test
+    public void testStatusBranchRateIncreased() {
+        CoverageReportAction action = new CoverageReportAction(higherCoverage, lowerCoverage, CoverageRateType.BRANCH);
+
+        String status = action.getStatusName();
+        String description = action.getStatusDescription();
+
+        Assert.assertEquals("success", status);
+        Assert.assertEquals("Coverage of 30.00% is greater than or equal to expected 10.00%.", description);
+    }
+
+
+    @Test
+    public void testStatusOverallRateDecreased() {
+        CoverageReportAction action = new CoverageReportAction(lowerCoverage, higherCoverage, CoverageRateType.OVERALL);
+
+        String status = action.getStatusName();
+        String description = action.getStatusDescription();
+
+        Assert.assertEquals("failure", status);
+        Assert.assertEquals("Coverage of 20.00% is lower than expected 40.00%.", description);
+    }
+
+
+    @Test
+    public void testStatusOverallRateIncreased() {
+        CoverageReportAction action = new CoverageReportAction(higherCoverage, lowerCoverage, CoverageRateType.OVERALL);
+
+        String status = action.getStatusName();
+        String description = action.getStatusDescription();
+
+        Assert.assertEquals("success", status);
+        Assert.assertEquals("Coverage of 40.00% is greater than or equal to expected 20.00%.", description);
     }
 
 }

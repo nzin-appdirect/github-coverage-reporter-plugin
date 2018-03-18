@@ -124,12 +124,13 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
     }
 
     private CoverageReportAction generateCoverageReport(File file) throws ParserException, SonarException {
-        CoverageParser parser = ParserFactory.instance.parserForType(coverageXmlType);
+        CoverageParser parser = ParserFactory.instance.parserForType(CoverageType.fromIdentifier(coverageXmlType));
 
         Coverage coverage = parser.parse(file.getAbsolutePath());
         Coverage expectedCoverage = getExpectedCoverage(comparisonOption);
 
-        return new CoverageReportAction(coverage, expectedCoverage);
+        // TODO: This should be user selectable
+        return new CoverageReportAction(coverage, expectedCoverage, CoverageRateType.OVERALL);
     }
 
 
@@ -141,7 +142,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         } else if (comparisonOption.isTypeFixedCoverage()) {
             double fixedValue = comparisonOption.fixedCoverageAsDouble();
             // TODO: Have two separate inputs for this
-            expectedCoverage = new DefaultCoverage(fixedValue, fixedValue);
+            expectedCoverage = new DefaultCoverage(fixedValue, fixedValue, fixedValue);
         } else {
             expectedCoverage = null;
         }
@@ -149,7 +150,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
     }
 
     private GithubPayload generateGithubCovergePayload(CoverageReportAction coverageReport, String targetUrl) {
-        String status = coverageReport.isAcceptableCoverage() ? "success" : "failure";
+        String status = coverageReport.getStatusName();
         String description = coverageReport.getStatusDescription();
         String context = "coverage";
         GithubPayload payload = new GithubPayload(status, targetUrl, description, context);
@@ -165,8 +166,8 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
         public ListBoxModel doFillCoverageXmlTypeItems() {
             ListBoxModel model = new ListBoxModel();
-            model.add("Cobertura XML", CoverageType.COBERTURA);
-            model.add("Jacoco XML", CoverageType.JACOCO);
+            model.add("Cobertura XML", CoverageType.COBERTURA.getIdentifier());
+            model.add("Jacoco XML", CoverageType.JACOCO.getIdentifier());
             return model;
         }
 

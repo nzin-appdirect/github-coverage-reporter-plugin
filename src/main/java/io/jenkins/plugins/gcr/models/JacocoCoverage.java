@@ -1,15 +1,12 @@
 package io.jenkins.plugins.gcr.models;
 
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.stream.Stream;
 
 @XmlRootElement(name = "report")
-public class JacocoCoverage implements Coverage {
+public class JacocoCoverage extends XmlCoverage {
 
     public static final String TYPE_INSTRUCTION     = "INSTRUCTION";
     public static final String TYPE_BRANCH          = "BRANCH";
@@ -28,14 +25,6 @@ public class JacocoCoverage implements Coverage {
 
     // Coverage Interface
 
-    private Stream<JacocoCounter> filterStreamFor(String type) {
-        return counters.stream().filter(obj -> obj.type.equals(type));
-    }
-
-    private double rateForCounter(JacocoCounter counter) {
-        return ((double)counter.covered / (double)counter.getTotal());
-    }
-
     public double getLineRate() {
         JacocoCounter counter = filterStreamFor(TYPE_LINE).findAny().get();
         return rateForCounter(counter);
@@ -44,6 +33,16 @@ public class JacocoCoverage implements Coverage {
     public double getBranchRate() {
         JacocoCounter counter = filterStreamFor(TYPE_BRANCH).findAny().get();
         return rateForCounter(counter);
+    }
+
+    // Jacoco Utilities
+
+    private Stream<JacocoCounter> filterStreamFor(String type) {
+        return counters.stream().filter(obj -> obj.type.equals(type));
+    }
+
+    private double rateForCounter(JacocoCounter counter) {
+        return ((double)counter.covered / (double)counter.getTotal());
     }
 
     // Other

@@ -1,11 +1,31 @@
 package io.jenkins.plugins.gcr.models;
 
-public class CoverageType {
+public enum CoverageType {
 
-    public static final String JACOCO = "jacoco";
+    JACOCO("jacoco"),
+    COBERTURA("cobertura"),
+    SONARQUBE("sonarqube");
 
-    public static final String COBERTURA = "cobertura";
+    private String identifier;
 
-    private CoverageType() {}
+    CoverageType(String identifier) {
+        this.identifier = identifier;
+    }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public static CoverageType fromIdentifier(String identifier) {
+        if (JACOCO.getIdentifier().equals(identifier)) {
+            return JACOCO;
+        }
+        if (COBERTURA.getIdentifier().equals(identifier)) {
+            return COBERTURA;
+        }
+        if (SONARQUBE.getIdentifier().equals(identifier)) {
+            return SONARQUBE;
+        }
+        return null;
+    }
 }

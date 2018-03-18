@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "coverage")
-public class CoberturaCoverage implements Coverage {
+public class CoberturaCoverage extends XmlCoverage {
 
     @XmlAttribute(name = "line-rate")
     public double lineRate;

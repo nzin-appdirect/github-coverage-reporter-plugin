@@ -39,15 +39,18 @@ public class SonarClientTests {
         File mockFile = TestUtils.loadResource("sonar-metrics.json");
         clientMock.onGet("http://localhost:9000/api/measures/component")
                 .withParameter("component", "io.jenkins.plugins:github-coverage-reporter")
-                .withParameter("metricKeys", "line_coverage")
+                .withParameter("metricKeys", "line_coverage,branch_coverage,coverage")
                 .doReturn(Files.toString(mockFile, Charset.forName("utf-8")));
 
         SonarClient client = new SonarClient(clientMock);
 
         Coverage coverage = client.getCoverageForProject("io.jenkins.plugins:github-coverage-reporter");
 
+        Assert.assertEquals(0.3, coverage.getLineRate(), 0.05);
 
-        Assert.assertEquals(0.234, coverage.getLineRate(), 0.05);
+        Assert.assertEquals(0.1, coverage.getBranchRate(), 0.05);
+
+        // TODO: overall coverage
     }
 
     @Test
@@ -55,7 +58,7 @@ public class SonarClientTests {
         HttpClientMock clientMock = new HttpClientMock();
         clientMock.onGet("http://localhost:9000/api/measures/component")
                 .withParameter("component", "io.jenkins.plugins:github-coverage-reporter")
-                .withParameter("metricKeys", "line_coverage")
+                .withParameter("metricKeys", "line_coverage,branch_coverage,coverage")
                 .doThrowException(new IOException());
 
         SonarClient client = new SonarClient(clientMock);

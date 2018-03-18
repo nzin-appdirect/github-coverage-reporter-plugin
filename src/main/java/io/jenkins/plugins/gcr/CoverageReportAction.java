@@ -2,6 +2,10 @@ package io.jenkins.plugins.gcr;
 
 import hudson.model.Action;
 import io.jenkins.plugins.gcr.models.Coverage;
+import io.jenkins.plugins.gcr.models.CoverageRateType;
+import io.jenkins.plugins.gcr.models.CoverageType;
+
+import static io.jenkins.plugins.gcr.models.CoverageType.JACOCO;
 
 public class CoverageReportAction implements Action {
 
@@ -9,58 +13,65 @@ public class CoverageReportAction implements Action {
 
     private Coverage expectedCoverage;
 
-    private String lineRateDescription;
+    private CoverageRateType coverageType;
 
-    private String branchRateDescription;
-
-    private String expectedLineRateDescription;
-
-    public CoverageReportAction(Coverage coverage, Coverage expectedCoverage) {
+    public CoverageReportAction(Coverage coverage, Coverage expectedCoverage, CoverageRateType coverageType) {
         this.coverage = coverage;
         this.expectedCoverage = expectedCoverage;
-
-        this.lineRateDescription = String.format("%.2f%%", coverage.getLineRate() * 100.0);
-        this.branchRateDescription = String.format("%.2f%%", coverage.getBranchRate() * 100.0);
+        this.coverageType = coverageType;
     }
 
-    // Getters
+    // Action description generation
 
-    public Coverage getCoverage() {
-        return coverage;
+    private double toChosenCoverageValue(Coverage coverage) {
+        switch (coverageType) {
+            case LINE:
+                return coverage.getLineRate();
+            case BRANCH:
+                return coverage.getBranchRate();
+            case OVERALL:
+                return coverage.getOverallRate();
+        }
+        return 0.0; // TODO: throw exception?
     }
 
-    public String getLineRateDescription() {
-        return lineRateDescription;
+    private String toRateFragment(Coverage coverage) {
+        return String.format("%.2f%%", toChosenCoverageValue(coverage) * 100.0);
     }
 
-    public String getBranchRateDescription() {
-        return branchRateDescription;
-    }
-
-    public String getExpectedLineRateDescription() { return expectedLineRateDescription; }
-
-    public String getLineRateDifference() {
+    private String toRateDifferenceFragment(double expectedRate, double actualRate) {
+        // TODO: Not in use yet
         if (isAcceptableCoverage()) {
-            double difference = coverage.getLineRate() - expectedCoverage.getLineRate();
+            double difference = actualRate - expectedRate;
             return String.format("+%.2f%%", difference * 100.0);
         } else {
-            double difference = expectedCoverage.getLineRate() - coverage.getLineRate();
+            double difference = expectedRate - actualRate;
             return String.format("-%.2f%%", difference * 100.0);
         }
     }
 
-    public boolean isAcceptableCoverage() {
-        return coverage.getLineRate() >= expectedCoverage.getLineRate();
-    }
+
+    // Public interface
 
     public String getStatusDescription() {
         // TODO: localise
-        final String template = "Coverage of %.2f%% is %s expected %.2f%%.";
-        final String adjective = isAcceptableCoverage() ? "greater than or equal to" : "lower than";
-        final double rate = coverage.getLineRate() * 100.0;
-        final double expectedRate = expectedCoverage.getLineRate() * 100.0;
-        return String.format(template, rate, adjective, expectedRate);
+        final String template = "Coverage of %s is %s expected %s.";
+
+        final String fragment = isAcceptableCoverage() ? "greater than or equal to" : "lower than";
+        final String actualRate = toRateFragment(coverage);
+        final String expectedRate = toRateFragment(expectedCoverage);
+
+        return String.format(template, actualRate, fragment, expectedRate);
     }
+
+    public String getStatusName() {
+        return isAcceptableCoverage() ? "success" : "failure";
+    }
+
+    public boolean isAcceptableCoverage() {
+        return toChosenCoverageValue(coverage) >= toChosenCoverageValue(expectedCoverage);
+    }
+
 
     // Required fields
 
