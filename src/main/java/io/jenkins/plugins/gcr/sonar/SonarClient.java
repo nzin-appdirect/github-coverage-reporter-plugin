@@ -1,7 +1,6 @@
 package io.jenkins.plugins.gcr.sonar;
 
 import io.jenkins.plugins.gcr.models.Coverage;
-import io.jenkins.plugins.gcr.models.DefaultCoverage;
 import io.jenkins.plugins.gcr.sonar.models.SonarProject;
 import io.jenkins.plugins.gcr.sonar.parsers.SonarCoverageParser;
 import net.sf.json.JSONArray;
@@ -107,9 +106,7 @@ public class SonarClient {
         };
 
         try {
-            Coverage result = this.httpClient.execute(request, responseHandler);
-            // TODO: Branch rate doesn't come back for some projects ...
-            return result;
+            return this.httpClient.execute(request, responseHandler);
         } catch (IOException ex) {
             // TODO: Localise
             String message = String.format("Failed to retrieve coverage from sonar project '%s'", projectKey);

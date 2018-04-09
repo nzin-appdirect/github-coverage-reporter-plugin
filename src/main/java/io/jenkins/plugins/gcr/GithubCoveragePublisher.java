@@ -7,6 +7,7 @@ import hudson.model.*;
 import hudson.tasks.*;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import io.jenkins.plugins.gcr.build.BuildStepService;
 import io.jenkins.plugins.gcr.github.GithubClient;
 import io.jenkins.plugins.gcr.github.GithubPayload;
 import io.jenkins.plugins.gcr.models.*;
@@ -39,12 +40,15 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
     private String coverageXmlType;
 
+    private String coverageRateType;
+
     private ComparisonOption comparisonOption;
 
     @DataBoundConstructor
-    public GithubCoveragePublisher(String filepath, String coverageXmlType, ComparisonOption comparisonOption) throws IOException {
+    public GithubCoveragePublisher(String filepath, String coverageXmlType, String coverageRateType, ComparisonOption comparisonOption) throws IOException {
         this.filepath = filepath;
         this.coverageXmlType = coverageXmlType;
+        this.coverageRateType = coverageRateType;
         this.comparisonOption = comparisonOption;
     }
 
@@ -81,6 +85,15 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         return this.comparisonOption.getSonarProject();
     }
 
+    public String getCoverageRateType() {
+        return coverageRateType;
+    }
+
+    @DataBoundSetter
+    public void setCoverageRateType(String coverageRateType) {
+        this.coverageRateType = coverageRateType;
+    }
+
     // Runner
 
     @Override
@@ -106,12 +119,14 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         File file = new File(pathToFile.toURI());
         listener.getLogger().println(String.format("Attempting parse of file: %s", file.getAbsolutePath()));
 
+        BuildStepService buildStepService = new BuildStepService();
+
         try {
-            CoverageReportAction coverageReport = generateCoverageReport(file);
+            CoverageReportAction coverageReport = buildStepService.generateCoverageReport(file, comparisonOption, coverageXmlType, coverageRateType);
             run.addAction(coverageReport);
             run.save();
 
-            GithubPayload payload = generateGithubCovergePayload(coverageReport, environment.getBuildUrl());
+            GithubPayload payload = buildStepService.generateGithubCovergePayload(coverageReport, environment.getBuildUrl());
             githubClient.sendCommitStatus(payload);
 
             run.setResult(Result.SUCCESS);
@@ -123,41 +138,6 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
     }
 
-    private CoverageReportAction generateCoverageReport(File file) throws ParserException, SonarException {
-        CoverageParser parser = ParserFactory.instance.parserForType(CoverageType.fromIdentifier(coverageXmlType));
-
-        Coverage coverage = parser.parse(file.getAbsolutePath());
-        Coverage expectedCoverage = getExpectedCoverage(comparisonOption);
-
-        // TODO: This should be user selectable
-        return new CoverageReportAction(coverage, expectedCoverage, CoverageRateType.OVERALL);
-    }
-
-
-    private Coverage getExpectedCoverage(ComparisonOption comparisonOption) throws SonarException {
-        Coverage expectedCoverage;
-        if (comparisonOption.isTypeSonarProject()) {
-            SonarClient client = new SonarClient();
-            expectedCoverage = client.getCoverageForProject(comparisonOption.getSonarProject());
-        } else if (comparisonOption.isTypeFixedCoverage()) {
-            double fixedValue = comparisonOption.fixedCoverageAsDouble();
-            // TODO: Have two separate inputs for this
-            expectedCoverage = new DefaultCoverage(fixedValue, fixedValue, fixedValue);
-        } else {
-            expectedCoverage = null;
-        }
-        return expectedCoverage;
-    }
-
-    private GithubPayload generateGithubCovergePayload(CoverageReportAction coverageReport, String targetUrl) {
-        String status = coverageReport.getStatusName();
-        String description = coverageReport.getStatusDescription();
-        String context = "coverage";
-        GithubPayload payload = new GithubPayload(status, targetUrl, description, context);
-
-        return payload;
-    }
-
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
@@ -165,6 +145,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         private ListBoxModel sonarProjectModel;
 
         public ListBoxModel doFillCoverageXmlTypeItems() {
+            // TODO: localise
             ListBoxModel model = new ListBoxModel();
             model.add("Cobertura XML", CoverageType.COBERTURA.getIdentifier());
             model.add("Jacoco XML", CoverageType.JACOCO.getIdentifier());
@@ -183,6 +164,15 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
             }
 
             return sonarProjectModel;
+        }
+
+        public ListBoxModel doFillCoverageRateTypeItems() {
+            ListBoxModel model = new ListBoxModel();
+            // TODO: localise
+            model.add("Overall", CoverageRateType.OVERALL.getName());
+            model.add("Branch", CoverageRateType.BRANCH.getName());
+            model.add("Line", CoverageRateType.LINE.getName());
+            return model;
         }
 
         public FormValidation doCheckSonarProject(@QueryParameter String value) {

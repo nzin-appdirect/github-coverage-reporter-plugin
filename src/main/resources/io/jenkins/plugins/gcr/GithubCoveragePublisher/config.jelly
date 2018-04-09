@@ -23,4 +23,8 @@
             </f:entry>
         </f:nested>
     </f:radioBlock>
+    <f:entry title="${%CoverageRateType}" field="coverageRateType">
+        <f:select />
+        <f:helplink  />
+    </f:entry>
 </j:jelly>

@@ -1,5 +1,8 @@
 package io.jenkins.plugins.gcr.models;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 public enum CoverageType {
 
     JACOCO("jacoco"),
@@ -17,15 +20,7 @@ public enum CoverageType {
     }
 
     public static CoverageType fromIdentifier(String identifier) {
-        if (JACOCO.getIdentifier().equals(identifier)) {
-            return JACOCO;
-        }
-        if (COBERTURA.getIdentifier().equals(identifier)) {
-            return COBERTURA;
-        }
-        if (SONARQUBE.getIdentifier().equals(identifier)) {
-            return SONARQUBE;
-        }
-        return null;
+        Stream<CoverageType> stream = Arrays.stream(CoverageType.values());
+        return stream.filter(c -> c.getIdentifier().equals(identifier)).findFirst().orElse(null);
     }
 }
