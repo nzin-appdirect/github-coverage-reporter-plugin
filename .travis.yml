@@ -1,3 +1,5 @@
 language: java
+install: ""
+script: "mvn test -Dsonar.skip=true"
 jdk:
   - oraclejdk8
