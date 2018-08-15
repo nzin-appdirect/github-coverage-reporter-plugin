@@ -86,15 +86,10 @@ public class GithubClient {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("https");
 
-        try {
-            URL gitUrl = new URL(environment.getGitUrl());
-            if (this.isCustomUrlValid()) {
-                builder.setHost(this.cleanedHost());
-            } else {
-                builder.setHost("api.github.com");
-            }
-        } catch (MalformedURLException ex) {
-            throw new GithubClientException("URL was malformed", ex);
+        if (this.isCustomUrlValid()) {
+            builder.setHost(this.cleanedHost());
+        } else {
+            builder.setHost("api.github.com");
         }
 
         if (this.isCustomUrlValid()) {
