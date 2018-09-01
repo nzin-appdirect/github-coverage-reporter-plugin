@@ -1,5 +1,6 @@
 package io.jenkins.plugins.gcr.parsers;
 
+import hudson.FilePath;
 import io.jenkins.plugins.gcr.models.CoberturaCoverage;
 import io.jenkins.plugins.gcr.models.Coverage;
 import io.jenkins.plugins.gcr.utils.XmlUtils;
@@ -16,7 +17,7 @@ public class CoberturaParser implements CoverageParser {
 
 
     @Override
-    public Coverage parse(String filepath) throws ParserException {
+    public Coverage parse(FilePath filepath) throws ParserException {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(CoberturaCoverage.class);
             SAXSource source = XmlUtils.getSAXSource(filepath);

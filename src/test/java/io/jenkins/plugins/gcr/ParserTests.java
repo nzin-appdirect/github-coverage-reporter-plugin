@@ -1,13 +1,12 @@
 package io.jenkins.plugins.gcr;
 
+import hudson.FilePath;
 import io.jenkins.plugins.gcr.models.Coverage;
 import io.jenkins.plugins.gcr.parsers.CoberturaParser;
 import io.jenkins.plugins.gcr.parsers.JacocoParser;
 import io.jenkins.plugins.gcr.parsers.ParserException;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.File;
 
@@ -18,7 +17,8 @@ public class ParserTests {
         CoberturaParser parser = new CoberturaParser();
 
         File coverageFile = TestUtils.loadResource("cobertura-coverage.xml");
-        Coverage coverage = parser.parse(coverageFile.getAbsolutePath());
+        FilePath coverageFilePath = new FilePath(coverageFile);
+        Coverage coverage = parser.parse(coverageFilePath);
 
         Assert.assertEquals(0.75, coverage.getLineRate(), 0.05);
         Assert.assertEquals(0.75, coverage.getBranchRate(), 0.05);
@@ -30,8 +30,9 @@ public class ParserTests {
         CoberturaParser parser = new CoberturaParser();
 
         File coverageFile = TestUtils.loadResource("cobertura-coverage-corrupted.xml");
+        FilePath coverageFilePath = new FilePath(coverageFile);
         try {
-            Coverage coverage = parser.parse(coverageFile.getAbsolutePath());
+            Coverage coverage = parser.parse(coverageFilePath);
             Assert.fail();
         } catch(ParserException ex) {
             Assert.assertNotNull(ex);
@@ -43,7 +44,8 @@ public class ParserTests {
         JacocoParser parser = new JacocoParser();
 
         File coverageFile = TestUtils.loadResource("jacoco-coverage.xml");
-        Coverage coverage = parser.parse(coverageFile.getAbsolutePath());
+        FilePath coverageFilePath = new FilePath(coverageFile);
+        Coverage coverage = parser.parse(coverageFilePath);
 
         Assert.assertEquals(0.22, coverage.getLineRate(), 0.05);
         Assert.assertEquals(0.28, coverage.getBranchRate(), 0.05);
@@ -55,8 +57,9 @@ public class ParserTests {
         JacocoParser parser = new JacocoParser();
 
         File coverageFile = TestUtils.loadResource("jacoco-coverage-corrupted.xml");
+        FilePath coverageFilePath = new FilePath(coverageFile);
         try {
-            Coverage coverage = parser.parse(coverageFile.getAbsolutePath());
+            Coverage coverage = parser.parse(coverageFilePath);
             Assert.fail();
         } catch(ParserException ex) {
             Assert.assertNotNull(ex);

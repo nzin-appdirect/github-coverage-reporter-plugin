@@ -1,5 +1,6 @@
 package io.jenkins.plugins.gcr.build;
 
+import hudson.FilePath;
 import io.jenkins.plugins.gcr.CoverageReportAction;
 import io.jenkins.plugins.gcr.github.GithubPayload;
 import io.jenkins.plugins.gcr.models.*;
@@ -17,10 +18,10 @@ public class BuildStepService {
 
     }
 
-    public CoverageReportAction generateCoverageReport(File file, ComparisonOption comparisonOption, String coverageXmlType, String coverageRateType) throws ParserException, SonarException {
+    public CoverageReportAction generateCoverageReport(FilePath filepath, ComparisonOption comparisonOption, String coverageXmlType, String coverageRateType) throws ParserException, SonarException {
         CoverageParser parser = ParserFactory.instance.parserForType(CoverageType.fromIdentifier(coverageXmlType));
 
-        Coverage coverage = parser.parse(file.getAbsolutePath());
+        Coverage coverage = parser.parse(filepath);
         Coverage expectedCoverage = getExpectedCoverage(comparisonOption);
 
         // TODO: This should be user selectable

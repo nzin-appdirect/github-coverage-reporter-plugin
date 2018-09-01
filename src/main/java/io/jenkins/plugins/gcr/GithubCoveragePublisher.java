@@ -105,7 +105,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
         String githubUrl = PluginConfiguration.DESCRIPTOR.getGithubEnterpriseUrl();
         GithubClient githubClient = new GithubClient(environment, githubUrl, githubAccessToken);
 
-        FilePath pathToFile = new FilePath(workspace, this.filepath);
+        FilePath pathToFile = workspace.child(this.filepath);
 
         if (!pathToFile.exists()) {
             listener.error("The coverage file at the provided path does not exist");
@@ -113,16 +113,13 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
             return;
         } else {
             listener.getLogger().println(String.format("Found file '%s'", this.filepath));
-            String xmlString = FileUtils.readFileToString(new File(pathToFile.toURI()));
+//            String xmlString = FileUtils.readFileToString(new File(pathToFile.toURI()));
         }
-
-        File file = new File(pathToFile.toURI());
-        listener.getLogger().println(String.format("Attempting parse of file: %s", file.getAbsolutePath()));
 
         BuildStepService buildStepService = new BuildStepService();
 
         try {
-            CoverageReportAction coverageReport = buildStepService.generateCoverageReport(file, comparisonOption, coverageXmlType, coverageRateType);
+            CoverageReportAction coverageReport = buildStepService.generateCoverageReport(pathToFile, comparisonOption, coverageXmlType, coverageRateType);
             run.addAction(coverageReport);
             run.save();
 
@@ -140,6 +137,8 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
+
 
 
         private ListBoxModel sonarProjectModel;

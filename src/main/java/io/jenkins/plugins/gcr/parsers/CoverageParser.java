@@ -1,9 +1,10 @@
 package io.jenkins.plugins.gcr.parsers;
 
+import hudson.FilePath;
 import io.jenkins.plugins.gcr.models.Coverage;
 
 public interface CoverageParser {
 
-    public Coverage parse(String filepath) throws ParserException;
+    public Coverage parse(FilePath filepath) throws ParserException;
 
 }
