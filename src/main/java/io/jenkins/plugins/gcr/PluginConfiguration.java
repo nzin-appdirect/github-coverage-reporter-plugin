@@ -44,7 +44,7 @@ public class PluginConfiguration extends AbstractDescribableImpl<PluginConfigura
         @Override
         public String getDisplayName() {
             // TODO: localise
-            return "Github Coverage Reporter";
+            return "GitHub Coverage Reporter";
         }
 
         public String getGithubAccessToken() {

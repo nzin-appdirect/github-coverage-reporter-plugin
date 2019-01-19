@@ -1,4 +1,4 @@
-# Github Coverage reporter
+# GitHub Coverage reporter
 
 [![Build Status](https://travis-ci.org/jnewc/github-coverage-reporter.svg?branch=master)](https://travis-ci.org/jnewc/github-coverage-reporter)
 
