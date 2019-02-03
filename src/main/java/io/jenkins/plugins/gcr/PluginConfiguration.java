@@ -37,6 +37,7 @@ public class PluginConfiguration extends AbstractDescribableImpl<PluginConfigura
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
             githubAccessToken = json.getString("githubAccessToken");
             githubEnterpriseUrl = json.getString("githubEnterpriseUrl");
+            save();
             return super.configure(req, json);
         }
 
