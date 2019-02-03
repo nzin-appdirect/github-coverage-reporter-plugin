@@ -40,7 +40,11 @@ public class SonarCoverageParser {
             }
         }
 
-        return new DefaultCoverage(overallRate, lineRate, branchRate);
+        return new DefaultCoverage(
+            overallRate / 100.0f,
+            lineRate / 100.0f,
+            branchRate / 100.0f
+        );
 
     }
 
