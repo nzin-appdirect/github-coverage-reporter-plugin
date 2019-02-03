@@ -6,9 +6,9 @@ Jenkins plugin for reporting code coverage as a GitHub status check.
 
 ## Screenshots
 
-![Screenshot of success status](https://raw.githubusercontent.com/jnewc/github-coverage-reporter/readme/assets/coverage-success.png)
+![Screenshot of success status](https://raw.githubusercontent.com/jenkinsci/github-coverage-reporter/readme/assets/coverage-success.png)
 
-![Screenshot of failure status](https://raw.githubusercontent.com/jnewc/github-coverage-reporter/readme/assets/coverage-failure.png)
+![Screenshot of failure status](https://raw.githubusercontent.com/jenkinsci/github-coverage-reporter/readme/assets/coverage-failure.png)
 
 # Usage
 
@@ -43,6 +43,8 @@ them. If you're not sure how to create a token, read [this](https://help.github.
 
 The plugin provides a post-build action for auditing coverage files and
 posting a GitHub status to your pull request.
+
+![Screenshot of post-build action](https://raw.githubusercontent.com/jenkinsci/github-coverage-reporter/readme/assets/action.png)
 
 1. Specify the path of the coverage file and the type of coverage.
 2. Choose either SonarQube or Fixed Coverage.
