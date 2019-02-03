@@ -36,7 +36,7 @@ public class CoverageReportAction implements Action {
     }
 
     private String toRateFragment(Coverage coverage) {
-        return String.format("%.2f%%", toChosenCoverageValue(coverage) * 100.0);
+        return String.format("%.2f%%", toChosenCoverageValue(coverage));
     }
 
     private String toRateDifferenceFragment(double expectedRate, double actualRate) {
