@@ -60,22 +60,27 @@ public class GithubClient {
             throw new GithubClientException("Issue with encoding of github payload", ex);
         }
 
-        ResponseHandler<Boolean> responseHandler = (HttpResponse response) -> {
+        ResponseHandler<GithubResponse> responseHandler = (HttpResponse response) -> {
             InputStream stream = response.getEntity().getContent();
             String string = IOUtils.toString(stream);
             System.out.println(string);
 
-            if(response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                return true;
+            int status = response.getStatusLine().getStatusCode();
+
+            if(status == HttpStatus.SC_CREATED) {
+                return new GithubResponse(true, "");
             }
 
-            return false;
+            String body = IOUtils.toString(response.getEntity().getContent());
+            String message = String.format("[%d] %s", status, body);
+            return new GithubResponse(false, message);
         };
 
         try {
-            boolean result = this.httpClient.execute(postRequest, responseHandler);
-            if (!result) {
-                throw new GithubClientException("Bad HTTP result");
+            GithubResponse result = this.httpClient.execute(postRequest, responseHandler);
+            if (!result.isSuccess()) {
+                String message = String.format("Bad HTTP result for url %s. Error message:  ", postRequest.getURI().toString());
+                throw new GithubClientException(message);
             }
         } catch (IOException ex) {
             throw new GithubClientException("IOException during request");
