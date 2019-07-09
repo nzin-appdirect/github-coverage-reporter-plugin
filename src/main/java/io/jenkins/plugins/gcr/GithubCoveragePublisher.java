@@ -97,10 +97,10 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
     // Runner
 
     @Override
-    public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
+    public void perform(AbstractBuild<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
         listener.getLogger().println("Attempting to parse file of type, " + coverageXmlType + "");
 
-        PluginEnvironment environment = new PluginEnvironment(run.getEnvironment(listener));
+        PluginEnvironment environment = new PluginEnvironment(build.getEnvironment(listener));
         String githubAccessToken = PluginConfiguration.DESCRIPTOR.getGithubAccessToken();
         String githubUrl = PluginConfiguration.DESCRIPTOR.getGithubEnterpriseUrl();
         GithubClient githubClient = new GithubClient(environment, githubUrl, githubAccessToken);
@@ -109,7 +109,7 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
         if (!pathToFile.exists()) {
             listener.error("The coverage file at the provided path does not exist");
-            run.setResult(Result.FAILURE);
+            build.setResult(Result.FAILURE);
             return;
         } else {
             listener.getLogger().println(String.format("Found file '%s'", this.filepath));
@@ -120,17 +120,17 @@ public class GithubCoveragePublisher extends Recorder implements SimpleBuildStep
 
         try {
             CoverageReportAction coverageReport = buildStepService.generateCoverageReport(pathToFile, comparisonOption, coverageXmlType, coverageRateType);
-            run.addAction(coverageReport);
-            run.save();
+            build.addAction(coverageReport);
+            build.save();
 
             GithubPayload payload = buildStepService.generateGithubCovergePayload(coverageReport, environment.getBuildUrl());
             githubClient.sendCommitStatus(payload);
 
-            run.setResult(Result.SUCCESS);
+            build.setResult(Result.SUCCESS);
         } catch (Exception ex) {
             listener.error(ex.getMessage());
             ex.printStackTrace();
-            run.setResult(Result.FAILURE);
+            build.setResult(Result.FAILURE);
         }
 
     }
