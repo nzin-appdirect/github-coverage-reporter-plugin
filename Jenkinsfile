@@ -27,7 +27,7 @@ pipeline {
             steps {
                 checkout([
                      $class: 'GitSCM',
-                     branches: [[name: '*/master']],
+                     extensions: [[$class: 'LocalBranch', localBranch: "**"]],
                      userRemoteConfigs: scm.userRemoteConfigs
                  ])
             }
@@ -56,20 +56,6 @@ pipeline {
 			}
 		}
 
-		stage('Push Artifact') {
-			steps {
-				script{
-					sh "mvn clean package"
-
-					def server = Artifactory.server 'artifactory-appdirect'
-					def rtMaven = Artifactory.newMavenBuild()
-					rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
-					rtMaven.tool = 'M3'
-					def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean install'
-				}
-			}
-		}
-
 		stage('Release') {
 			when {
 				expression {
@@ -77,11 +63,16 @@ pipeline {
 				}
 			}
 			steps {
-
-				echo 'Increasing version...'
-				sshagent(credentials: [CREDENTIALS_GITHUB]) {
-					sh "mvn versions:revert"
-					sh "mvn -B release:clean -DpreparationGoals='' release:prepare -DtagNameFormat='@{project.version}' -Dgoals='' release:perform"
+				withCredentials([
+						[$class          : 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS_ARTIFACTORY,
+						usernameVariable: 'ARTIFACTORY_USER',
+						passwordVariable: 'ARTIFACTORY_PASSWORD']
+				]) {
+					echo 'Increasing version and publish...'
+					sshagent(credentials: [CREDENTIALS_GITHUB]) {
+						sh "mvn versions:revert"
+						sh "mvn -B release:clean -DpreparationGoals='' release:prepare -DtagNameFormat='@{project.version}' -Dgoals='' release:perform"
+					}
 				}
 			}
 		}
