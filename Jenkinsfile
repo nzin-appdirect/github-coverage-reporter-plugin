@@ -27,7 +27,7 @@ pipeline {
             steps {
                 checkout([
                      $class: 'GitSCM',
-                     branches: [[name: '*/master']],
+                     extensions: [[$class: 'LocalBranch', localBranch: "**"]],
                      userRemoteConfigs: scm.userRemoteConfigs
                  ])
             }
@@ -58,14 +58,20 @@ pipeline {
 
 		stage('Push Artifact') {
 			steps {
-				script{
-					sh "mvn clean package"
+				withCredentials([
+						[$class          : 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS_ARTIFACTORY,
+						usernameVariable: 'ARTIFACTORY_USER',
+						passwordVariable: 'ARTIFACTORY_PASSWORD']
+				]) {
+					script{
+						sh "mvn clean package"
 
-					def server = Artifactory.server 'artifactory-appdirect'
-					def rtMaven = Artifactory.newMavenBuild()
-					rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
-					rtMaven.tool = 'M3'
-					def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean install'
+						def server = Artifactory.server 'artifactory-appdirect'
+						def rtMaven = Artifactory.newMavenBuild()
+						rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
+						rtMaven.tool = 'M3'
+						def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean install'
+					}
 				}
 			}
 		}
