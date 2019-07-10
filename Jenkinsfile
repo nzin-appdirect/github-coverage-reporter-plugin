@@ -80,7 +80,7 @@ pipeline {
 				echo 'Increasing version and publish...'
 				sshagent(credentials: [CREDENTIALS_GITHUB]) {
 					sh "mvn versions:revert"
-					sh "mvn -B release:clean -DpreparationGoals='' release:prepare -DtagNameFormat='@{project.version}' -Dgoals='' release:perform -Darguments=\"-DARTIFACTORY_USER=$ARTIFACTORY_USER -DARTIFACTORY_PASSWORD=$ARTIFACTORY_PASSWORD\""
+					sh "mvn -B release:clean -DpreparationGoals='' release:prepare -DtagNameFormat='@{project.version}' -Dgoals='' release:perform"
 				}
 			}
 		}
