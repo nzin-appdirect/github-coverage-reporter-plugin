@@ -25,7 +25,12 @@ pipeline {
         }
         stage('Checkout project...') {
             steps {
-                checkout scm
+                checkout([
+                     $class: 'GitSCM',
+                     branches: scm.branches,
+                     extensions: scm.extensions + [[$class: 'CleanCheckout'], [$class: 'LocalBranch', localBranch: 'new']],
+                     userRemoteConfigs: scm.userRemoteConfigs
+                 ])
             }
         }
 
