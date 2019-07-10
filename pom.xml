@@ -31,19 +31,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <repository>
-            <id>appdirect-artifactory</id>
-            <url>https://artifactory.appdirect.tools/artifactory/libs-release-local</url>
-            <layout>default</layout>
-        </repository>
-        <snapshotRepository>
-            <id>appdirect-lib-snapshots</id>
-            <url>https://artifactory.appdirect.tools/artifactory/libs-snapshot-local</url>
-            <layout>default</layout>
-        </snapshotRepository>
-    </distributionManagement>
-
     <repositories>
         <repository>
             <id>appdirect-artifactory</id>
