@@ -30,6 +30,39 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
+
+    <distributionManagement>
+        <repository>
+            <id>appdirect-artifactory</id>
+            <url>https://artifactory.appdirect.tools/artifactory/libs-release-local</url>
+            <layout>default</layout>
+        </repository>
+        <snapshotRepository>
+            <id>appdirect-lib-snapshots</id>
+            <url>https://artifactory.appdirect.tools/artifactory/libs-snapshot-local</url>
+            <layout>default</layout>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>appdirect-artifactory</id>
+            <name>appdirect-artifactory</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://artifactory.appdirect.tools/artifactory/repo</url>
+        </repository>
+        <repository>
+            <id>appdirect-lib-snapshots</id>
+            <name>appdirect-libs-snapshot</name>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://artifactory.appdirect.tools/artifactory/libs-snapshot</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
