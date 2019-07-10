@@ -6,6 +6,7 @@ releaseBranchRegex = /release|master/
 
 def CREDENTIALS_ARTIFACTORY = 'jenkins-artifactory-credentials'
 def CREDENTIALS_GITHUB = 'jenkins-github'
+def MAVEN_CONFIGURATION_FILE = 'MavenArtifactorySettingsCustomFile'
 
 pipeline {
     agent { node { label 'build' } }
@@ -64,6 +65,10 @@ pipeline {
 				}
 			}
 			steps {
+				configFileProvider(
+						[configFile(fileId: MAVEN_CONFIGURATION_FILE, variable: 'MAVEN_SETTINGS')]) {
+					sh 'cp $MAVEN_SETTINGS mavenSettings'
+				}
 				withCredentials([
 						[$class          : 'UsernamePasswordMultiBinding', credentialsId: CREDENTIALS_ARTIFACTORY,
 						usernameVariable: 'ARTIFACTORY_USER',
@@ -72,7 +77,7 @@ pipeline {
 					echo 'Increasing version and publish...'
 					sshagent(credentials: [CREDENTIALS_GITHUB]) {
 						sh "mvn versions:revert"
-						sh "mvn -B release:clean -DpreparationGoals='' release:prepare -DtagNameFormat='@{project.version}' -Dgoals='' release:perform"
+						sh "mvn -s mavenSettings -B release:clean -DpreparationGoals='' release:prepare -DtagNameFormat='@{project.version}' -Dgoals='' release:perform -Darguments=\"-DARTIFACTORY_USER=$ARTIFACTORY_USER -DARTIFACTORY_PASSWORD=$ARTIFACTORY_PASSWORD\""
 					}
 				}
 			}
