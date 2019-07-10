@@ -3,12 +3,13 @@
 @Library('jenkins-shared-library') _
 
 releaseBranchRegex = /release|master/
+
+def CREDENTIALS_ARTIFACTORY = 'jenkins-artifactory-credentials'
+def CREDENTIALS_GITHUB = 'jenkins-github'
+
 pipeline {
     agent { node { label 'build' } }
     options { disableConcurrentBuilds() }
-    environment{
-      CREDENTIALS_GITHUB = 'jenkins-github'
-    }
 
     stages {
         //skip pushing artifcat when maven release plugin checks in code.
