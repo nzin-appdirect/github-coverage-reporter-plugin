@@ -44,7 +44,7 @@ pipeline {
 			}
 		}
 
-		stage('Build Java sdk') {
+		stage('Building') {
 			steps {
 				script{
 					sh "mvn clean package"
