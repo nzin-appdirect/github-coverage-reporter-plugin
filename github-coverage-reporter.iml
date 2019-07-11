@@ -17,7 +17,7 @@
     <orderEntry type="library" scope="TEST" name="com.github.paweladamski:HttpClientMock:Latest" level="project" />
     <orderEntry type="library" name="Maven: org.jenkins-ci.plugins:structs:1.7" level="project" />
     <orderEntry type="library" name="Maven: org.jenkins-ci:symbol-annotation:1.7" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.jenkins-ci.plugins.workflow:workflow-step-api:2.12" level="project" />
+    <orderEntry type="library" name="Maven: org.jenkins-ci.plugins.workflow:workflow-step-api:2.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jenkins-ci.plugins.workflow:workflow-cps:2.39" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jenkins-ci.plugins.workflow:workflow-scm-step:2.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jenkins-ci.plugins:script-security:1.31" level="project" />

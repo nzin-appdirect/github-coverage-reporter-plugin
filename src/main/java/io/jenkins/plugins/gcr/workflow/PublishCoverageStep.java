@@ -80,7 +80,7 @@ public class PublishCoverageStep extends AbstractStepImpl {
 
 		@Override
 		public String getFunctionName() {
-			return "publishCoverage";
+			return "publishCoverageGithub";
 		}
 
 		@Override
