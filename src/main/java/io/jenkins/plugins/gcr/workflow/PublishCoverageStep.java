@@ -36,8 +36,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import java.io.IOException;
 
 /**
- * Publishes HTML reports in Workflows.
- * @author Oleg Nenashev
+ * Publishes code coverage to Github in Workflows.
+ * @author Nicolas Zin
  */
 public class PublishCoverageStep extends AbstractStepImpl {
 
@@ -80,7 +80,7 @@ public class PublishCoverageStep extends AbstractStepImpl {
 
 		@Override
 		public String getFunctionName() {
-			return "publishCoverage";
+			return "publishCoverageGithub";
 		}
 
 		@Override
