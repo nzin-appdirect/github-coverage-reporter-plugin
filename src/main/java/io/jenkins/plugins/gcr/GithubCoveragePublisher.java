@@ -97,7 +97,15 @@ public class GithubCoveragePublisher extends Recorder {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException,IOException {
-		return publishCoverage(build, build.getWorkspace(), listener, filepath, coverageXmlType,comparisonOption,coverageRateType);
+
+		if (build==null) {
+			return false;
+		}
+		FilePath workspace = build.getWorkspace();
+		if (workspace==null) {
+			return false;
+		}
+		return publishCoverage(build, workspace, listener, filepath, coverageXmlType,comparisonOption,coverageRateType);
 	}
 
 	public static boolean publishCoverage(Run<?, ?> build, FilePath workspace, TaskListener listener, String filepath, String coverageXmlType, io.jenkins.plugins.gcr.models.ComparisonOption comparisonOption, String coverageRateType) throws InterruptedException, IOException {
