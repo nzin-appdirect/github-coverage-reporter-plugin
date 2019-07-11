@@ -17,7 +17,7 @@ pipeline {
 			when { changelog '.*\\[maven-release-plugin\\].*'}
 			steps {
 				script {
-					pom = readMavenPom file: 'javasdk/pom.xml'
+					pom = readMavenPom file: 'pom.xml'
 					currentBuild.displayName = pom.version
 					currentBuild.result = 'NOT_BUILT'
 				}
