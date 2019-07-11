@@ -97,7 +97,7 @@ public class GithubCoveragePublisher extends Recorder {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException,IOException {
-
+		
 		if (build==null) {
 			return false;
 		}
