@@ -43,7 +43,7 @@ import io.jenkins.plugins.gcr.GithubCoveragePublisher;
 
 /**
  * Execution for {@link PublishCoverageStep}.
- * @author Oleg Nenashev
+ * @author Nicolas Zin
  */
 public class PublishCoverageStepExecution extends AbstractSynchronousNonBlockingStepExecution<Void> {
 	private static final long serialVersionUID = 1L;
