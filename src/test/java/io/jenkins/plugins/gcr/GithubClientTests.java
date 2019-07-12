@@ -57,10 +57,8 @@ public class GithubClientTests {
 
     private PluginEnvironment createMockEnvironment() {
         EnvVars envVars = new EnvVars(
-                "ghprbPullId", "34",
-                "ghprbGhRepository", REPO,
-                "ghprbAuthorRepoGitUrl", "https://api.github.com",
-                "ghprbActualCommit", COMMIT_HASH,
+                "CHANGE_URL", "https://github.com/"+REPO+"/pull/130",
+                "GIT_COMMIT", COMMIT_HASH,
                 "BUILD_URL", "https://my.build/url"
         );
 
