@@ -57,7 +57,7 @@ public class GithubClientTests {
 
     private PluginEnvironment createMockEnvironment() {
         EnvVars envVars = new EnvVars(
-                "CHANGE_URL", "https://github.com/"+REPO+"/pull/130",
+                "CHANGE_URL", "https://github.com/" + REPO + "/pull/130",
                 "GIT_COMMIT", COMMIT_HASH,
                 "BUILD_URL", "https://my.build/url"
         );

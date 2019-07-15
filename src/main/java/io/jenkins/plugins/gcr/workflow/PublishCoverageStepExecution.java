@@ -20,36 +20,37 @@ import io.jenkins.plugins.gcr.GithubCoveragePublisher;
 
 /**
  * Execution for {@link PublishCoverageStep}.
+ *
  * @author Nicolas Zin
  */
 public class PublishCoverageStepExecution extends AbstractSynchronousNonBlockingStepExecution<Void> {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@StepContextParameter
-	private transient TaskListener listener;
+    @StepContextParameter
+    private transient TaskListener listener;
 
-	@StepContextParameter
-	private transient FilePath ws;
+    @StepContextParameter
+    private transient FilePath ws;
 
-	@StepContextParameter
-	private transient Run build;
+    @StepContextParameter
+    private transient Run build;
 
-	@StepContextParameter
-	private transient Launcher launcher;
+    @StepContextParameter
+    private transient Launcher launcher;
 
-	@Inject
-	private transient PublishCoverageStep step;
+    @Inject
+    private transient PublishCoverageStep step;
 
-	@Override
-	protected Void run() throws Exception {
-		StepContext context = getContext();
-		EnvVars env = context.get(EnvVars.class);
+    @Override
+    protected Void run() throws Exception {
+        StepContext context = getContext();
+        EnvVars env = context.get(EnvVars.class);
 
-		boolean res = GithubCoveragePublisher.publishCoverage(build, ws, listener, env, step.getFilePath(), step.getCoverageXmlType(), step.getComparisonOption(), step.getCoverageRateType());
-		if (!res) {
-			throw new AbortException("Cannot publish coverage report");
-		}
-		return null;
-	}
+        boolean res = GithubCoveragePublisher.publishCoverage(build, ws, listener, env, step.getFilePath(), step.getCoverageXmlType(), step.getComparisonOption(), step.getCoverageRateType());
+        if (!res) {
+            throw new AbortException("Cannot publish coverage report");
+        }
+        return null;
+    }
 
 }
