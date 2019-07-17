@@ -34,185 +34,183 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class GithubCoveragePublisher extends Recorder {
 
-	public static final int COMPARISON_SONAR = 0;
-	public static final int COMPARISON_FIXED = 1;
+    public static final int COMPARISON_SONAR = 0;
+    public static final int COMPARISON_FIXED = 1;
 
-	private final String filepath;
+    private final String filepath;
 
-	private String coverageXmlType;
+    private String coverageXmlType;
 
-	private String coverageRateType;
+    private String coverageRateType;
 
-	private ComparisonOption comparisonOption;
+    private ComparisonOption comparisonOption;
 
-	@DataBoundConstructor
-	public GithubCoveragePublisher(String filepath, String coverageXmlType, String coverageRateType, ComparisonOption comparisonOption) throws IOException {
-		this.filepath = filepath;
-		this.coverageXmlType = coverageXmlType;
-		this.coverageRateType = coverageRateType;
-		this.comparisonOption = comparisonOption;
-	}
+    @DataBoundConstructor
+    public GithubCoveragePublisher(String filepath, String coverageXmlType, String coverageRateType, ComparisonOption comparisonOption) throws IOException {
+        this.filepath = filepath;
+        this.coverageXmlType = coverageXmlType;
+        this.coverageRateType = coverageRateType;
+        this.comparisonOption = comparisonOption;
+    }
 
-	@Override
-	public DescriptorImpl getDescriptor() {
-		return (DescriptorImpl)super.getDescriptor();
-	}
+    @Override
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) super.getDescriptor();
+    }
 
-	// Getters / Setters
+    // Getters / Setters
 
-	public String getFilepath() {
-		return filepath;
-	}
+    public String getFilepath() {
+        return filepath;
+    }
 
-	public String getCoverageXmlType() {
-		return coverageXmlType;
-	}
+    public String getCoverageXmlType() {
+        return coverageXmlType;
+    }
 
-	@DataBoundSetter
-	public void setCoverageXmlType(String coverageXmlType) {
-		this.coverageXmlType = coverageXmlType;
-	}
+    @DataBoundSetter
+    public void setCoverageXmlType(String coverageXmlType) {
+        this.coverageXmlType = coverageXmlType;
+    }
 
-	public ComparisonOption getComparisonOption() {
-		return comparisonOption;
-	}
+    public ComparisonOption getComparisonOption() {
+        return comparisonOption;
+    }
 
-	@DataBoundSetter
-	public void setComparisonOption(ComparisonOption comparisonOption) {
-		this.comparisonOption = comparisonOption;
-	}
+    @DataBoundSetter
+    public void setComparisonOption(ComparisonOption comparisonOption) {
+        this.comparisonOption = comparisonOption;
+    }
 
-	public String getSonarProject() {
-		return this.comparisonOption.getSonarProject();
-	}
+    public String getSonarProject() {
+        return this.comparisonOption.getSonarProject();
+    }
 
-	public String getCoverageRateType() {
-		return coverageRateType;
-	}
+    public String getCoverageRateType() {
+        return coverageRateType;
+    }
 
-	@DataBoundSetter
-	public void setCoverageRateType(String coverageRateType) {
-		this.coverageRateType = coverageRateType;
-	}
+    @DataBoundSetter
+    public void setCoverageRateType(String coverageRateType) {
+        this.coverageRateType = coverageRateType;
+    }
 
-	@Override
-	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-			throws InterruptedException,IOException {
-		
-		if (build==null) {
-			return false;
-		}
-		FilePath workspace = build.getWorkspace();
-		if (workspace==null) {
-			return false;
-		}
-		return publishCoverage(build, workspace, listener, build.getEnvironment(listener), filepath, coverageXmlType,comparisonOption,coverageRateType);
-	}
+    @Override
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+            throws InterruptedException, IOException {
 
-	public static boolean publishCoverage(Run<?, ?> build, FilePath workspace, TaskListener listener, EnvVars env,  String filepath, String coverageXmlType, io.jenkins.plugins.gcr.models.ComparisonOption comparisonOption, String coverageRateType) throws InterruptedException, IOException {
-		listener.getLogger().println("build: Attempting to parse file of type, " + coverageXmlType + "");
+        if (build == null) {
+            return false;
+        }
+        FilePath workspace = build.getWorkspace();
+        if (workspace == null) {
+            return false;
+        }
+        return publishCoverage(build, workspace, listener, build.getEnvironment(listener), filepath, coverageXmlType, comparisonOption, coverageRateType);
+    }
 
-		PluginEnvironment environment = new PluginEnvironment(env);
-		String githubAccessToken = PluginConfiguration.DESCRIPTOR.getGithubAccessToken();
-		String githubUrl = PluginConfiguration.DESCRIPTOR.getGithubEnterpriseUrl();
-		GithubClient githubClient = new GithubClient(environment, githubUrl, githubAccessToken);
+    public static boolean publishCoverage(Run<?, ?> build, FilePath workspace, TaskListener listener, EnvVars env, String filepath, String coverageXmlType, io.jenkins.plugins.gcr.models.ComparisonOption comparisonOption, String coverageRateType) throws InterruptedException, IOException {
+        listener.getLogger().println("build: Attempting to parse file of type, " + coverageXmlType + "");
 
-		FilePath pathToFile = workspace.child(filepath);
+        PluginEnvironment environment = new PluginEnvironment(env);
+        String githubAccessToken = PluginConfiguration.DESCRIPTOR.getGithubAccessToken();
+        String githubUrl = PluginConfiguration.DESCRIPTOR.getGithubEnterpriseUrl();
+        GithubClient githubClient = new GithubClient(environment, githubUrl, githubAccessToken);
 
-		if (!pathToFile.exists()) {
-			listener.error("The coverage file at the provided path does not exist");
-			build.setResult(Result.FAILURE);
-			return false;
-		} else {
-			listener.getLogger().println(String.format("Found file '%s'", filepath));
+        FilePath pathToFile = workspace.child(filepath);
+
+        if (!pathToFile.exists()) {
+            listener.error("The coverage file at the provided path does not exist");
+            build.setResult(Result.FAILURE);
+            return false;
+        } else {
+            listener.getLogger().println(String.format("Found file '%s'", filepath));
 //            String xmlString = FileUtils.readFileToString(new File(pathToFile.toURI()));
-		}
+        }
 
-		BuildStepService buildStepService = new BuildStepService();
+        BuildStepService buildStepService = new BuildStepService();
 
-		try {
-			CoverageReportAction coverageReport = buildStepService.generateCoverageReport(pathToFile, comparisonOption, coverageXmlType, coverageRateType);
-			build.addAction(coverageReport);
-			build.save();
+        try {
+            CoverageReportAction coverageReport = buildStepService.generateCoverageReport(pathToFile, comparisonOption, coverageXmlType, coverageRateType);
+            build.addAction(coverageReport);
+            build.save();
 
-			GithubPayload payload = buildStepService.generateGithubCovergePayload(coverageReport, environment.getBuildUrl());
-			githubClient.sendCommitStatus(payload);
+            GithubPayload payload = buildStepService.generateGithubCovergePayload(coverageReport, environment.getBuildUrl());
+            githubClient.sendCommitStatus(payload);
 
-			build.setResult(Result.SUCCESS);
-		} catch (Exception ex) {
-			listener.error(ex.getMessage());
-			ex.printStackTrace();
-			build.setResult(Result.FAILURE);
-			return false;
-		}
-		return true;
-	}
+            build.setResult(Result.SUCCESS);
+        } catch (Exception ex) {
+            listener.error(ex.getMessage());
+            ex.printStackTrace();
+            build.setResult(Result.FAILURE);
+            return false;
+        }
+        return true;
+    }
 
-	@Extension
-	public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
-
+    @Extension
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
 
-		private ListBoxModel sonarProjectModel;
+        private ListBoxModel sonarProjectModel;
 
-		public ListBoxModel doFillCoverageXmlTypeItems() {
-			// TODO: localise
-			ListBoxModel model = new ListBoxModel();
-			model.add("Cobertura XML", CoverageType.COBERTURA.getIdentifier());
-			model.add("Jacoco XML", CoverageType.JACOCO.getIdentifier());
-			return model;
-		}
+        public ListBoxModel doFillCoverageXmlTypeItems() {
+            // TODO: localise
+            ListBoxModel model = new ListBoxModel();
+            model.add("Cobertura XML", CoverageType.COBERTURA.getIdentifier());
+            model.add("Jacoco XML", CoverageType.JACOCO.getIdentifier());
+            return model;
+        }
 
-		public ListBoxModel doFillSonarProjectItems() {
-			sonarProjectModel = new ListBoxModel();
+        public ListBoxModel doFillSonarProjectItems() {
+            sonarProjectModel = new ListBoxModel();
 
-			SonarClient client = new SonarClient();
-			try {
-				List<SonarProject> projects = client.listProjects();
-				projects.forEach(project -> sonarProjectModel.add(project.getName(), project.getKey()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+            SonarClient client = new SonarClient();
+            try {
+                List<SonarProject> projects = client.listProjects();
+                projects.forEach(project -> sonarProjectModel.add(project.getName(), project.getKey()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-			return sonarProjectModel;
-		}
+            return sonarProjectModel;
+        }
 
-		public ListBoxModel doFillCoverageRateTypeItems() {
-			ListBoxModel model = new ListBoxModel();
-			// TODO: localise
-			model.add("Overall", CoverageRateType.OVERALL.getName());
-			model.add("Branch", CoverageRateType.BRANCH.getName());
-			model.add("Line", CoverageRateType.LINE.getName());
-			return model;
-		}
+        public ListBoxModel doFillCoverageRateTypeItems() {
+            ListBoxModel model = new ListBoxModel();
+            // TODO: localise
+            model.add("Overall", CoverageRateType.OVERALL.getName());
+            model.add("Branch", CoverageRateType.BRANCH.getName());
+            model.add("Line", CoverageRateType.LINE.getName());
+            return model;
+        }
 
-		public FormValidation doCheckSonarProject(@QueryParameter String value) {
-			// TODO: Use localized Messages strings
-			if (sonarProjectModel == null || sonarProjectModel.isEmpty()) {
-				return FormValidation.error("SonarQube server unreachable.");
-			}
-			if (value == null || value.equals("")) {
-				return FormValidation.error("Invalid project selection. check that your SonarQube server is not unreachable.");
-			}
+        public FormValidation doCheckSonarProject(@QueryParameter String value) {
+            // TODO: Use localized Messages strings
+            if (sonarProjectModel == null || sonarProjectModel.isEmpty()) {
+                return FormValidation.error("SonarQube server unreachable.");
+            }
+            if (value == null || value.equals("")) {
+                return FormValidation.error("Invalid project selection. check that your SonarQube server is not unreachable.");
+            }
 
-			return FormValidation.ok();
-		}
+            return FormValidation.ok();
+        }
 
-		@Override
-		public boolean isApplicable(Class<? extends AbstractProject> aClass) {
-			return true;
-		}
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> aClass) {
+            return true;
+        }
 
-		@Override
-		public String getDisplayName() {
-			return Messages.GithubCoveragePublisher_DescriptorImpl_DisplayName();
-		}
+        @Override
+        public String getDisplayName() {
+            return Messages.GithubCoveragePublisher_DescriptorImpl_DisplayName();
+        }
 
-	}
+    }
 
-	@Override
-	public BuildStepMonitor getRequiredMonitorService() {
-		return BuildStepMonitor.NONE;
-	}
+    @Override
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.NONE;
+    }
 }
