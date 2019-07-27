@@ -12,6 +12,8 @@ public class PluginEnvironment {
 
     private String gitHash;
 
+    private String pullId;
+
     private String buildUrl;
 
     // Constructor
@@ -23,14 +25,14 @@ public class PluginEnvironment {
         } else{
             String changeUrl = get("CHANGE_URL", env);
 
-            Pattern pattern = Pattern.compile("https://[^/]*/(.*?)/pull/.*");
+            Pattern pattern = Pattern.compile("https://[^/]*/(.*?)/pull/(.*)");
             Matcher matcher = pattern.matcher(changeUrl);
             if (matcher.find()) {
                 pullRequestRepository = matcher.group(1);
+                pullId = matcher.group(2);
             } else {
                 throw new IllegalArgumentException(String.format("Can't find the owner/repo from CHANGE_URL environmental variable '%s'", changeUrl));
             }
-            gitHash = get("GIT_COMMIT", env);
         }
         buildUrl = get("BUILD_URL", env);
     }
@@ -39,6 +41,10 @@ public class PluginEnvironment {
 
     public String getGitHash() {
         return gitHash;
+    }
+
+    public String getPullId() {
+        return pullId;
     }
 
     public String getPullRequestRepository() {
